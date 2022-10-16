@@ -82,26 +82,20 @@ void OnTick()
 //+------------------------------------------------------------------+
 // INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
 
-//Execute trades between the 12th min and 50th min
-   if(expert.LapsedTimerEntry(Time1,Time2) == true)
-     {
-
 // Check if price is within the First Zone
-      if((expert.ZoneSignal(LevelCheck, ZoneDeviation, count)==150)&&(PositionsTotal()==0)&&(OrdersTotal()==0))
-        {
-         //Buy at support level if the Bid price is between the current low of the candlestick
-         //and 30 points above the high of the same candlestick
+   if((expert.ZoneSignal(LevelCheck, ZoneDeviation, count)==150)&&(PositionsTotal()==0)&&(OrdersTotal()==0))
+     {
+      //Buy at support level if the Bid price is between the current low of the candlestick
+      //and 30 points above the high of the same candlestick
 
-         if(Bid<expert.Lows()+(30*_Point) && expert.MarketDirection() == "SELL")
-            trade.Buy(LotSize,_Symbol,Bid,(Bid-(300*_Point)),Bid+350*_Point,NULL);
+      if(Bid<expert.Lows()+(30*_Point) && expert.MarketDirection() == "SELL")
+         trade.Buy(LotSize,_Symbol,Bid,(Bid-(300*_Point)),Bid+350*_Point,NULL);
 
-         //Sell at resistance level if the Ask price is between the current high of the candlestick
-         //and 30 points below the high of the same candlestick
+      //Sell at resistance level if the Ask price is between the current high of the candlestick
+      //and 30 points below the high of the same candlestick
 
-         if(Ask>expert.Highs()-(30*_Point) && expert.MarketDirection() == "BUY")
-            trade.Sell(LotSize,_Symbol,Ask,(Ask+(300*_Point)),Ask-350*_Point,NULL);
-
-        }
+      if(Ask>expert.Highs()-(30*_Point) && expert.MarketDirection() == "BUY")
+         trade.Sell(LotSize,_Symbol,Ask,(Ask+(300*_Point)),Ask-350*_Point,NULL);
 
      }
 
