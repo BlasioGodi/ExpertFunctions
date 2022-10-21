@@ -9,6 +9,11 @@ CTrade trade;
 ExpertFunctions expert;
 
 input int DesiredProfitinPips = 50;
+input double Trading_Lvl1 = 0;
+input double Trading_Lvl2 = 0;
+input double Trading_Lvl3 = 0;
+input double Trading_Lvl4 = 0;
+
 input int ZoneDeviation = 0;
 input double LotSize = 0;
 input int StartTime = 15;
@@ -22,7 +27,7 @@ input ENUM_LINE_STYLE lineStyle = STYLE_SOLID;
 input color lineColor = clrMediumSpringGreen;
 
 extern int count = 0;
-extern vector Levels {0};
+extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4};
 
 //+------------------------------------------------------------------+
 //|                    ON-TICK MAIN FUNCTION                         |
