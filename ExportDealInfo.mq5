@@ -29,9 +29,9 @@ void OnStart()
    ResetLastError();
 
    HistorySelect(0,TimeCurrent());
-   uint total_Deals = HistoryDealsTotal();
-   ulong deal_Ticket,deal_Ticket2 = 0;
-   string order_Types = "";
+   uint total_Deals        = HistoryDealsTotal();
+   ulong deal_Ticket       = 0;
+   string order_Types      = "";
 
    for(uint i = 0; i < total_Deals; i++)
      {
@@ -58,17 +58,16 @@ void OnStart()
 
          //--Conversion of types
          datetime deal_realTime     =(datetime)deal_time;
-         datetime deal_realTime_msc = (datetime)deal_time_msc;
          string   time              =TimeToString((datetime)deal_time,TIME_DATE|TIME_MINUTES|TIME_SECONDS);
          string   type              =EnumToString((ENUM_DEAL_TYPE)deal_type);
          string   entry             =EnumToString((ENUM_DEAL_ENTRY)deal_entry);
 
-         if(order_Type == ORDER_TYPE_BUY)
+         if(type == "DEAL_TYPE_BUY")
            {
             order_Types = "BUY";
            }
          else
-            if(order_Type == ORDER_TYPE_SELL)
+            if(type == "DEAL_TYPE_SELL")
               {
                order_Types = "SELL";
               }
