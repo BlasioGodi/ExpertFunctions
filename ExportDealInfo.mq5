@@ -29,15 +29,15 @@ void OnStart()
    ResetLastError();
 
    HistorySelect(0,TimeCurrent());
-   uint total_Deals = HistoryDealsTotal();
-   ulong deal_Ticket = 0;
-   string order_Types = "";
+   uint total_Deals        = HistoryDealsTotal();
+   ulong deal_Ticket       = 0;
+   string order_Types      = "";
 
-   for(uint i = 1; i < total_Deals; i++)
+   for(uint i = 0; i < total_Deals; i++)
      {
       deal_Ticket = HistoryDealGetTicket(i);
 
-      if(historyInfo.SelectByIndex(i))
+      if(historyInfo.SelectByIndex(i)||dealInfo.SelectByIndex(i))
         {
          //--Deal Information
          long     deal_order        =HistoryDealGetInteger(deal_Ticket,DEAL_ORDER);
@@ -62,12 +62,12 @@ void OnStart()
          string   type              =EnumToString((ENUM_DEAL_TYPE)deal_type);
          string   entry             =EnumToString((ENUM_DEAL_ENTRY)deal_entry);
 
-         if(order_Type == ORDER_TYPE_BUY)
+         if(type == "DEAL_TYPE_BUY")
            {
             order_Types = "BUY";
            }
          else
-            if(order_Type == ORDER_TYPE_SELL)
+            if(type == "DEAL_TYPE_SELL")
               {
                order_Types = "SELL";
               }
