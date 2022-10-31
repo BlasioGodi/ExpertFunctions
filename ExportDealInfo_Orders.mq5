@@ -15,10 +15,17 @@ CHistoryOrderInfo historyInfo;
 
 
 input datetime                fromDate             = D'2017.08.07 11:06:20';  // From date
+<<<<<<< HEAD
 //input datetime                toDate               = __DATE__+60*60*24;       // To date
 input datetime                toDate               = D'2022.10.28 00:00:00';       // To date
 input string                  mySpreadSheet        = "DealsHistory_IN.csv";      // File name
+=======
+input datetime                toDate               = D'2022.10.25 14:00:00';  // To date
+input string                  mySpreadSheet        = "DealsHistory_OUT.csv";  // File name
+>>>>>>> 26ce626ed2ac40821054432bda4da3e7ee74a2e4
 extern datetime               datum                = D'1970.01.01 00:00:00';
+
+//input datetime                toDate               = __DATE__+60*60*24;       // To date
 
 //---
 int mySpreadSheetHandle = 0;
@@ -93,7 +100,7 @@ void OnStart()
             //Go to the end of the file
             FileSeek(mySpreadSheetHandle,0,SEEK_END);
 
-            //Append time, high and low to the file content
+            //Append price information to the CSV file
             FileWrite(mySpreadSheetHandle,"SetupTime,",deal_realTime,",Symbol,",deal_symbol,",DealTicket,",deal_Ticket,
                      ",DealType,",order_Types,",Volume,",deal_volume,",DealPrice,",deal_price,",DealProfit,",deal_profit,",PositionID,",deal_positionID);
 
