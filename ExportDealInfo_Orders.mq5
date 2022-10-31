@@ -16,8 +16,8 @@ CHistoryOrderInfo historyInfo;
 
 input datetime                fromDate             = D'2017.08.07 11:06:20';  // From date
 //input datetime                toDate               = __DATE__+60*60*24;       // To date
-input datetime                toDate               = D'2022.10.25 14:00:00';       // To date
-input string                  mySpreadSheet        = "DealsHistory_OUT.csv";      // File name
+input datetime                toDate               = D'2022.10.28 00:00:00';       // To date
+input string                  mySpreadSheet        = "DealsHistory_IN.csv";      // File name
 extern datetime               datum                = D'1970.01.01 00:00:00';
 
 //---
@@ -45,7 +45,7 @@ void OnStart()
 
       if(historyInfo.SelectByIndex(i)||dealInfo.SelectByIndex(i))
         {
-         if(HistoryDealGetInteger(deal_Ticket,DEAL_ENTRY)==DEAL_ENTRY_OUT)
+         if(HistoryDealGetInteger(deal_Ticket,DEAL_ENTRY)==DEAL_ENTRY_IN)
            {
             //--Deal Information
             long     deal_order        =HistoryDealGetInteger(deal_Ticket,DEAL_ORDER);
