@@ -972,7 +972,7 @@ string ExpertFunctions::MarketDirection(void)
    ArraySetAsSeries(CurrentArray,true);
 
 // Get data within the array
-   CopyRates(_Symbol,PERIOD_H1,0,3,CurrentArray);
+   CopyRates(_Symbol,PERIOD_H4,0,3,CurrentArray);
 
    double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
    double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
@@ -1331,7 +1331,7 @@ int ExpertFunctions::EntryTimer(datetime EntryTime)
 
 // Get the time difference
    int TimeDifference = CurrentMin - CheckMin;
-   
+
    return TimeDifference;
 
   } // END OF THE ENTRY TIMER FUNCTION
@@ -1342,6 +1342,11 @@ int ExpertFunctions::EntryTimer(datetime EntryTime)
 //+------------------------------------------------------------------+
 void ExpertFunctions::TradingCandle()
   {
+
+// Variable declaration
+   double price_diff    = 0;
+   double price_diffHC  = 0;
+   double price_diffHO  = 0;
 
 // Get current price array and sort information
    MqlRates CandleArray[];
@@ -1354,11 +1359,29 @@ void ExpertFunctions::TradingCandle()
    double open_price  = NormalizeDouble(CandleArray[0].open,_Digits);
    double close_price = NormalizeDouble(CandleArray[0].close,_Digits);
    
-// Get candle details
-   double price_diff = NormalizeDouble(high_price - low_price,2);
-   
-   Comment("#Price Difference: ",price_diff);
+   datetime time_candle = CandleArray[0].time;
 
+// If it is a buy candlestick
+   if(close_price>open_price)
+     {
+      price_diff = (NormalizeDouble(high_price - low_price,2))*100;
+      price_diffHC = high_price-close_price;
+      price_diffHO = high_price-open_price;
+
+      if(price_diff>=1000)
+         Comment("#CandleStick: ",time_candle);
+     }
+
+// If it is a sell candlestick
+   if(close_price<open_price)
+     {
+      price_diff = (NormalizeDouble(high_price - low_price,2))*100;
+      price_diffHC = low_price-close_price;
+      price_diffHO = low_price-open_price;
+      
+      if(price_diff>=1000)
+         Comment("#CandleStick: ",time_candle);
+     }
 
   } // END OF THE CANDLE OF INTEREST FUNCTION
 //+------------------------------------------------------------------+

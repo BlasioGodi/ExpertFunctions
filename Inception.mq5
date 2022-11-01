@@ -42,7 +42,6 @@ void OnTick()
 // IDENTIFY TRADE ENTRY POINT
    expert.TradingCandle();
 
-
 // TRADE EXECUTION PROCESS
    if(PositionSelect(_Symbol)==true)
      {
