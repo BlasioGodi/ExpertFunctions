@@ -42,12 +42,12 @@ void OnTick()
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
 // IDENTIFY TRADE ENTRY POINT
-   if(expert.TradingCandle()=="BUY")
+   if(expert.TradingCandle()=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
      {
       trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
      }
    else
-      if(expert.TradingCandle()=="SELL")
+      if(expert.TradingCandle()=="SELL" && PositionsTotal()==0 && OrdersTotal()==0)
         {
          trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
         }
