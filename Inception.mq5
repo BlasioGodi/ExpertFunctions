@@ -27,6 +27,8 @@ enum ENUM_TIMERS
 extern int pip_profit = 0;
 extern int pip_loss = 0;
 
+input double LotSize = 0.01;
+
 //+------------------------------------------------------------------+
 //|                    ON-TICK MAIN FUNCTION                         |
 //+------------------------------------------------------------------+
@@ -40,7 +42,15 @@ void OnTick()
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
 // IDENTIFY TRADE ENTRY POINT
-   expert.TradingCandle();
+   if(expert.TradingCandle()=="BUY")
+     {
+      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+     }
+   else
+      if(expert.TradingCandle()=="SELL")
+        {
+         trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
+        }
 
 // TRADE EXECUTION PROCESS
    if(PositionSelect(_Symbol)==true)
