@@ -64,13 +64,13 @@ public:
    void              PositionPipProfit(int);
    void              PositionPipLoss(int);
    bool              LapsedTimerEntry(int, int);
-   string            MarketDirection(void);
+   string            MarketDirection(int);
    void              TradeLapsedTime(void);
    void              SimplePositionClose(void);
    bool              PricedTime(datetime);
    int               EntryTimer(datetime);
    void              FailSafe(void);
-   void              TradingCandle(void);
+   string            TradingCandle(void);
 
 
   };
@@ -958,7 +958,7 @@ bool ExpertFunctions::LapsedTimerEntry(int Twelfth, int Fiftieth)
 //+------------------------------------------------------------------+
 //|                      MARKET DIRECTION FUNCTION                   |
 //+------------------------------------------------------------------+
-string ExpertFunctions::MarketDirection(void)
+string ExpertFunctions::MarketDirection(int bar_number)
   {
 
 //Variable declaration
@@ -974,10 +974,10 @@ string ExpertFunctions::MarketDirection(void)
 // Get data within the array
    CopyRates(_Symbol,PERIOD_H4,0,3,CurrentArray);
 
-   double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
-   double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
-   double openPrice1 = NormalizeDouble(CurrentArray[0].open,_Digits);
-   double currentPrice1 = NormalizeDouble(CurrentArray[0].close,_Digits);
+   double highPrice1 = NormalizeDouble(CurrentArray[bar_number].high,_Digits);
+   double lowPrice1 = NormalizeDouble(CurrentArray[bar_number].low,_Digits);
+   double openPrice1 = NormalizeDouble(CurrentArray[bar_number].open,_Digits);
+   double currentPrice1 = NormalizeDouble(CurrentArray[bar_number].close,_Digits);
 
 // Determine if the current price is higher or lower than the open price
 // in-order to confirm market direction
@@ -1340,13 +1340,14 @@ int ExpertFunctions::EntryTimer(datetime EntryTime)
 //+------------------------------------------------------------------+
 //|                      CANDLE OF INTEREST FUNCTION                 |
 //+------------------------------------------------------------------+
-void ExpertFunctions::TradingCandle()
+string ExpertFunctions::TradingCandle()
   {
 
 // Variable declaration
    double price_diff    = 0;
    double price_diffHC  = 0;
    double price_diffHO  = 0;
+   string candle_indication = "";
 
 // Get current price array and sort information
    MqlRates CandleArray[];
@@ -1358,8 +1359,15 @@ void ExpertFunctions::TradingCandle()
    double low_price   = NormalizeDouble(CandleArray[0].low,_Digits);
    double open_price  = NormalizeDouble(CandleArray[0].open,_Digits);
    double close_price = NormalizeDouble(CandleArray[0].close,_Digits);
-   
+
    datetime time_candle = CandleArray[0].time;
+   
+   double high_price1  = NormalizeDouble(CandleArray[1].high,_Digits);
+   double low_price1   = NormalizeDouble(CandleArray[1].low,_Digits);
+   double open_price1 = NormalizeDouble(CandleArray[1].open,_Digits);
+   double close_price1 = NormalizeDouble(CandleArray[1].close,_Digits);
+
+   datetime time_candle1 = CandleArray[0].time;
 
 // If it is a buy candlestick
    if(close_price>open_price)
@@ -1369,7 +1377,10 @@ void ExpertFunctions::TradingCandle()
       price_diffHO = high_price-open_price;
 
       if(price_diff>=1000)
-         Comment("#CandleStick: ",time_candle);
+        {
+         if(MarketDirection(1)=="SELL" && close_price>close_price1)
+            candle_indication = "BUY";
+        }
      }
 
 // If it is a sell candlestick
@@ -1378,10 +1389,15 @@ void ExpertFunctions::TradingCandle()
       price_diff = (NormalizeDouble(high_price - low_price,2))*100;
       price_diffHC = low_price-close_price;
       price_diffHO = low_price-open_price;
-      
+
       if(price_diff>=1000)
-         Comment("#CandleStick: ",time_candle);
+        {
+         if(MarketDirection(1)=="BUY" && close_price<close_price1)
+            candle_indication = "SELL";
+        }
      }
+     
+     return candle_indication;
 
   } // END OF THE CANDLE OF INTEREST FUNCTION
 //+------------------------------------------------------------------+
