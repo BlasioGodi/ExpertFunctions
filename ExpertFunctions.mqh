@@ -62,12 +62,15 @@ public:
    int               ZoneSignal(double, double, int&);
    int               ExpertZone(vector&, double, int &);
    void              PositionPipProfit(int);
+   void              PositionPipLoss(int);
    bool              LapsedTimerEntry(int, int);
    string            MarketDirection(void);
    void              TradeLapsedTime(void);
    void              SimplePositionClose(void);
-   bool              PricedTime(datetime PriceTime);
+   bool              PricedTime(datetime);
+   int               EntryTimer(datetime);
    void              FailSafe(void);
+   void              TradingCandle(void);
 
 
   };
@@ -790,9 +793,6 @@ void ExpertFunctions::PositionPipProfit(int DesiredPipProfit)
          // Get the position profit for the current position
          double PositionProfit = PositionGetDouble(POSITION_PROFIT);
 
-         // Get the current deal price for the current position (YOU MIGHT NOT NEED THIS BUT KEEP IT NONETHELESS)
-         double dealPrice=HistoryDealGetDouble(PositionTicket,DEAL_PRICE);
-
          //Calculate the open price for the position
          double PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
 
@@ -840,6 +840,80 @@ void ExpertFunctions::PositionPipProfit(int DesiredPipProfit)
      }// End For Loop
 
   }//END OF THE POSITIONPIPPROFIT FUNCTION
+//+------------------------------------------------------------------+
+
+
+//+------------------------------------------------------------------+
+//|                   POSITIONPIPLOSS FUNCTION                       |
+//+------------------------------------------------------------------+
+void ExpertFunctions::PositionPipLoss(int DesiredPipLoss)
+  {
+//Check all open positions for the current symbol
+   for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
+     {
+      //Get the history
+      HistorySelect(0,TimeCurrent());
+
+      string symbol=PositionGetSymbol(i); //get position symbol
+
+      if(_Symbol==symbol)  //if chart symbol equals position symbol
+        {
+         // Get the ticket number for the open position
+         ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
+
+         // Get the position type
+         ulong PositionType = PositionGetInteger(POSITION_TYPE);
+
+         // Get the position profit for the current position
+         double PositionProfit = PositionGetDouble(POSITION_PROFIT);
+
+         //Calculate the open price for the position
+         double PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
+
+         // Get the price difference
+         double price_diff=MathAbs(posInfo.PriceCurrent()-PositionPriceOpen);
+
+         // Get the current profit in points
+         int pointsProfit=(int)(price_diff/Point());
+
+         //Check if the current Position is a BUY
+         if(PositionType == POSITION_TYPE_BUY)
+           {
+            // Check if the current price is greater than the deal price
+            if(posInfo.PriceCurrent()<PositionPriceOpen)
+              {
+               if(pointsProfit >= DesiredPipLoss)
+                 {
+
+                  expertTrade.PositionClose(PositionTicket);
+
+                  // Reset the profit in points to 0 after function call
+                  pointsProfit = 0;
+                 }
+              }
+           }
+         //Check if the current Position is a sell
+         if(PositionType == POSITION_TYPE_SELL)
+           {
+            // Check if the current price is lower than the deal price
+            if(posInfo.PriceCurrent()>PositionPriceOpen)
+              {
+               if(pointsProfit >= DesiredPipLoss)
+                 {
+
+                  expertTrade.PositionClose(PositionTicket);
+
+                  // Reset the profit in points to 0 after function call
+                  pointsProfit = 0;
+                 }
+              }
+           }
+
+         //Comment("The Current pip profit is: ",pointsProfit);
+        } // End Symbol If loop
+     }// End For Loop
+
+  }//END OF THE POSITIONPIPLOSS FUNCTION
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
@@ -1227,4 +1301,64 @@ void ExpertFunctions::FailSafe(void)
      }// End For Loop
 
   }//END OF THE FAILSAFE FUNCTION
+//+------------------------------------------------------------------+
+
+
+//+------------------------------------------------------------------+
+//|                      ENTRY TIMER FUNCTION                        |
+//+------------------------------------------------------------------+
+int ExpertFunctions::EntryTimer(datetime EntryTime)
+  {
+// Used the One min candlestick to get the current trading time.
+// Compared that to the trading time clusters.
+   MqlRates BarPrice[];
+   ArraySetAsSeries(BarPrice,true);
+
+   CopyRates(_Symbol,PERIOD_M1,0,3,BarPrice);
+   datetime BarTime = BarPrice[0].time;
+
+   MqlDateTime CurrentPriceTime;
+   TimeToStruct(BarTime,CurrentPriceTime);
+
+   int CurrentMin = CurrentPriceTime.min;
+
+// Get the entry time details
+   MqlDateTime PriceTime;
+
+   TimeToStruct(EntryTime,PriceTime);
+
+   int CheckMin = PriceTime.min;
+
+// Get the time difference
+   int TimeDifference = CurrentMin - CheckMin;
+   
+   return TimeDifference;
+
+  } // END OF THE ENTRY TIMER FUNCTION
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//|                      CANDLE OF INTEREST FUNCTION                 |
+//+------------------------------------------------------------------+
+void ExpertFunctions::TradingCandle()
+  {
+
+// Get current price array and sort information
+   MqlRates CandleArray[];
+   ArraySetAsSeries(CandleArray,true);
+
+   CopyRates(_Symbol,PERIOD_H4,0,3,CandleArray);
+
+   double high_price  = NormalizeDouble(CandleArray[0].high,_Digits);
+   double low_price   = NormalizeDouble(CandleArray[0].low,_Digits);
+   double open_price  = NormalizeDouble(CandleArray[0].open,_Digits);
+   double close_price = NormalizeDouble(CandleArray[0].close,_Digits);
+   
+// Get candle details
+   double price_diff = NormalizeDouble(high_price - low_price,2);
+   
+   Comment("#Price Difference: ",price_diff);
+
+
+  } // END OF THE CANDLE OF INTEREST FUNCTION
 //+------------------------------------------------------------------+

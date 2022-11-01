@@ -39,7 +39,11 @@ void OnTick()
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
-// Check if Chart is selected
+// IDENTIFY TRADE ENTRY POINT
+   expert.TradingCandle();
+
+
+// TRADE EXECUTION PROCESS
    if(PositionSelect(_Symbol)==true)
      {
       // Select all open positions
@@ -65,7 +69,7 @@ void OnTick()
                  {
                   Comment("Trade is between 5-10mins");
                   pip_profit = 20;
-                  pip_loss = 50;
+                  pip_loss = 180;
 
                   //Activate the Position Pip loss function
                   expert.PositionPipLoss(pip_loss);
@@ -75,11 +79,21 @@ void OnTick()
                     {
                      Comment("Trade is between 10-15mins");
                      pip_profit = 10;
-                     pip_loss = 50;
+                     pip_loss = 180;
 
                      //Activate the Position Pip loss function
                      expert.PositionPipLoss(pip_loss);
                     }
+                  else
+                     if(timer_value>=15)
+                       {
+                        Comment("Trade is greater than 15mins");
+                        pip_profit = 10;
+                        pip_loss = 200;
+
+                        //Activate the Position Pip loss function
+                        expert.PositionPipLoss(pip_loss);
+                       }
 
          // Activate the PositionPipProfit function
          expert.PositionPipProfit(pip_profit);
