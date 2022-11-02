@@ -4,15 +4,15 @@
 //|                                      http://tradersliquidity.com |
 //+------------------------------------------------------------------+
 
+#property script_show_inputs
+#property description "TickData Retrieval"
+
 //include the file Trade.mqh
 #include<Trade\Trade.mqh>
 #include <Trade\OrderInfo.mqh>
-#include <ExpertFunctions.mqh>
 
 //Create Object instances
 CTrade trade;
-ExpertFunctions expert;
-COrderInfo orderInfo;
 
 //--External input values
 input datetime                fromDate             = D'2022.11.02 10:10:00';  // From date
@@ -29,19 +29,21 @@ int get_ticks = 10000;
 void OnTick()
   {
   MqlTick tick_data[];
+  double price_array[10];
+ 
+  CopyTicks(_Symbol,tick_data,COPY_TICKS_ALL,0,3);
   
-  ulong fromTime = (ulong)fromDate;
-  ulong toTime = (ulong)toDate;
+  ArrayFill(price_array,0,5,tick_data[0].ask);
   
-  CopyTicksRange(_Symbol,tick_data,COPY_TICKS_ALL,fromDate,toDate);
-  
-    Comment("AskPrice: ",tick_data[fromTime].ask);
-  
-  //Comment("AskPrice: ",tick_data[0].ask,"\n"
-  //        "BidPrice: ",tick_data[0].bid,"\n"
-  //        "Time: ",tick_data[0].time,"\n"
-  //        "Volume: ",tick_data[0].volume_real
-  //          );
+  Comment("AskPrice: ",tick_data[0].ask,"\n"
+          "BidPrice: ",tick_data[0].bid,"\n"
+          "1stPrice: ",price_array[0],"\n"
+          "2ndPrice: ",price_array[1],"\n"
+          "3rdPrice: ",price_array[2],"\n"
+          "Time: ",tick_data[0].time,"\n"
+          "Volume: ",tick_data[0].volume
+          
+            );
   }
 
 //+------------------------------------------------------------------+
