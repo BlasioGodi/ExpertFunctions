@@ -26,47 +26,43 @@ int get_ticks = 10000;
 //+------------------------------------------------------------------+
 //|                 HISTORY SELECT SCRIPT FUNCTION                   |
 //+------------------------------------------------------------------+
-void OnTick()
+
+//int init()   { fileHandle = FileOpen(Symbol()+" - "+FileName,FILE_WRITE|FILE_SHARE_READ|FILE_CSV); return(0); }
+//int deinit() {              FileClose(fileHandle);                                 return(0); }
+
+int OnStart()
   {
-  MqlTick tick_data[];
-  double price_array[10];
- 
-  CopyTicks(_Symbol,tick_data,COPY_TICKS_ALL,0,3);
-  
-  ArrayFill(price_array,0,5,tick_data[0].ask);
-  
-  Comment("AskPrice: ",tick_data[0].ask,"\n"
-          "BidPrice: ",tick_data[0].bid,"\n"
-          "1stPrice: ",price_array[0],"\n"
-          "2ndPrice: ",price_array[1],"\n"
-          "3rdPrice: ",price_array[2],"\n"
-          "Time: ",tick_data[0].time,"\n"
-          "Volume: ",tick_data[0].volume
-          
-            );
+// Get the Ask and Bid price
+   double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
+   double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
+   
+   double price_ask[10];
+   double price_bid[10];
+
+//Delete Previous file and reset last error
+   FileDelete(mySpreadSheet);
+   ResetLastError();
+
+//Open the file for reading and writing, as CSV format, ANSI mode
+   mySpreadSheetHandle = FileOpen(mySpreadSheet,FILE_READ|FILE_WRITE|FILE_CSV|FILE_ANSI);
+
+   if(mySpreadSheetHandle==INVALID_HANDLE)
+     {
+      PrintFormat("Failed to open %s file, Error code = %d",mySpreadSheet+".csv",GetLastError());
+     }
+
+//Go to the end of the file
+   FileSeek(mySpreadSheetHandle,0,SEEK_END);
+
+//Append price information to the CSV file
+   FileWriteString(mySpreadSheetHandle,"Time,"+TimeToString(TimeCurrent())+","+DoubleToString(Bid,_Digits)+","+DoubleToString(Ask,_Digits));
+
+//Close the file
+   FileClose(mySpreadSheetHandle);
+   
+   return (0);
   }
 
 //+------------------------------------------------------------------+
 
-////Delete Previous file and reset last error
-//   FileDelete(mySpreadSheet);
-//   ResetLastError();
-//
-////Open the file for reading and writing, as CSV format, ANSI mode
-//   mySpreadSheetHandle = FileOpen(mySpreadSheet,FILE_READ|FILE_WRITE|FILE_CSV|FILE_ANSI);
-//
-//   if(mySpreadSheetHandle==INVALID_HANDLE)
-//     {
-//      PrintFormat("Failed to open %s file, Error code = %d",mySpreadSheet+".csv",GetLastError());
-//      return;
-//     }
-//
-////Go to the end of the file
-//   FileSeek(mySpreadSheetHandle,0,SEEK_END);
-//
-////Append price information to the CSV file
-//   FileWrite(mySpreadSheetHandle,"TickData,",tick_data[1].ask);
-//
-////Close the file
-//   FileClose(mySpreadSheetHandle);
-
+//TimeToString(TimeCurrent(),TIME_DATE|TIME_SECONDS)+","+DoubleToString(Bid,Digits)+","+DoubleToString(Ask,Digits)+","+DoubleToString(Volume[0],0)+"\n")
