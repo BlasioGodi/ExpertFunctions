@@ -13,7 +13,7 @@ void OnTick()
    double PriceArray [];
    
    //Identifying Momentum properties
-   int MomentumDef = iMomentum(_Symbol,_Period,14,PRICE_CLOSE);
+   int MomentumDef = iMomentum(_Symbol,PERIOD_M1,14,PRICE_CLOSE);
    
    //Sorting price array
    ArraySetAsSeries(PriceArray,true);
@@ -25,7 +25,8 @@ void OnTick()
    double MomentumValue = NormalizeDouble(PriceArray[0],2);
    
    //Commenting Momentum output on the chart
-   if(MomentumValue>100) Comment("MOMENTUM VALUE IS: ",MomentumValue);
+   if(MomentumValue>100) Comment("MOMENTUM UPTREND STRATEGY - BUY");
+   if(MomentumValue<100) Comment("MOMENTUM UPTREND STRATEGY - No SIGNAL");
    
   }
 //+------------------------------------------------------------------+
