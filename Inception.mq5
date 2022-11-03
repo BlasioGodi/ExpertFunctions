@@ -41,12 +41,12 @@ void OnTick()
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
-//// IDENTIFY TRADE ENTRY POINT
-//   if(expert.TradingCandle()=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
-//     {
-//      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
-//     }
-//   else
+// IDENTIFY TRADE ENTRY POINT
+   if(expert.TradingCandle()=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
+     {
+      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+     }
+   else
       if(expert.TradingCandle()=="SELL" && PositionsTotal()==0 && OrdersTotal()==0)
         {
          trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
@@ -65,13 +65,13 @@ void OnTick()
          if(timer_value>=0 && timer_value<=3)
            {
             //Comment("Trade is between 0-3mins");
-            pip_profit = 100;
+            pip_profit = 110;
            }
          else
             if(timer_value>=3 && timer_value<=5)
               {
                //Comment("Trade is between 3-5mins");
-               pip_profit = 100;
+               pip_profit = 110;
               }
             else
                if(timer_value>=5 && timer_value<=10)
@@ -84,7 +84,7 @@ void OnTick()
                     {
                      //Comment("Trade is between 10-15mins");
                      pip_profit = 10;
-                     pip_loss = 100;
+                     pip_loss = 200;
 
                      //Activate the Position Pip loss function
                      expert.PositionPipLoss(pip_loss);
@@ -94,7 +94,7 @@ void OnTick()
                        {
                         //Comment("Trade is greater than 15mins");
                         pip_profit = 10;
-                        pip_loss = 100;
+                        pip_loss = 200;
 
                         //Activate the Position Pip loss function
                         expert.PositionPipLoss(pip_loss);

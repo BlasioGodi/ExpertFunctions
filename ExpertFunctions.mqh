@@ -1415,7 +1415,7 @@ string ExpertFunctions::TradingCandle()
 
       if(price_diff>=800 && close_price<close_price1)
         {
-         if(price_ratio2>=0.2&&price_ratio2<=0.7)
+         if(price_ratio2>=0.55&&price_ratio2<=0.7)
            {
             candle_indication = "SELL";
            }
