@@ -1387,9 +1387,9 @@ string ExpertFunctions::TradingCandle()
 
       price_ratio = price_diffHC/price_diffHO;
       
-      Comment("Price Ratio: ",price_ratio2,"\n"
+      Comment("Price Ratio: ",price_ratio,"\n"
               "Price Difference: ",price_diff,"\n"
-              "Close Price1: ",close_price1);
+              "Close Price1: ",close_price);
 
       if(price_diff>=800 && close_price>(open_price1+(75*_Point)))
         {
