@@ -1,6 +1,6 @@
 //include the file Trade.mqh
 #include<Trade\Trade.mqh>
-#include <ExpertFunctions.mqh>
+#include<ExpertFunctions.mqh>
 
 //Create an instance of CTrade
 CTrade trade;
@@ -27,7 +27,7 @@ enum ENUM_TIMERS
 extern int pip_profit = 0;
 extern int pip_loss = 0;
 
-input double LotSize = 0.01;
+input double LotSize = 0.1;
 
 //+------------------------------------------------------------------+
 //|                    ON-TICK MAIN FUNCTION                         |
@@ -41,12 +41,12 @@ void OnTick()
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
-// IDENTIFY TRADE ENTRY POINT
-   if(expert.TradingCandle()=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
-     {
-      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
-     }
-   else
+//// IDENTIFY TRADE ENTRY POINT
+//   if(expert.TradingCandle()=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
+//     {
+//      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+//     }
+//   else
       if(expert.TradingCandle()=="SELL" && PositionsTotal()==0 && OrdersTotal()==0)
         {
          trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
@@ -64,31 +64,27 @@ void OnTick()
 
          if(timer_value>=0 && timer_value<=3)
            {
-            Comment("Trade is between 0-3mins");
-            pip_profit = 50;
+            //Comment("Trade is between 0-3mins");
+            pip_profit = 100;
            }
          else
             if(timer_value>=3 && timer_value<=5)
               {
-               Comment("Trade is between 3-5mins");
-               pip_profit = 50;
+               //Comment("Trade is between 3-5mins");
+               pip_profit = 100;
               }
             else
                if(timer_value>=5 && timer_value<=10)
                  {
-                  Comment("Trade is between 5-10mins");
-                  pip_profit = 20;
-                  pip_loss = 180;
-
-                  //Activate the Position Pip loss function
-                  expert.PositionPipLoss(pip_loss);
+                  //Comment("Trade is between 5-10mins");
+                  pip_profit = 30;
                  }
                else
                   if(timer_value>=10 && timer_value<=15)
                     {
-                     Comment("Trade is between 10-15mins");
+                     //Comment("Trade is between 10-15mins");
                      pip_profit = 10;
-                     pip_loss = 180;
+                     pip_loss = 100;
 
                      //Activate the Position Pip loss function
                      expert.PositionPipLoss(pip_loss);
@@ -96,9 +92,9 @@ void OnTick()
                   else
                      if(timer_value>=15)
                        {
-                        Comment("Trade is greater than 15mins");
+                        //Comment("Trade is greater than 15mins");
                         pip_profit = 10;
-                        pip_loss = 200;
+                        pip_loss = 100;
 
                         //Activate the Position Pip loss function
                         expert.PositionPipLoss(pip_loss);

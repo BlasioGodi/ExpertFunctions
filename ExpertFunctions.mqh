@@ -1310,29 +1310,34 @@ void ExpertFunctions::FailSafe(void)
 int ExpertFunctions::EntryTimer(datetime EntryTime)
   {
 // Used the One min candlestick to get the current trading time.
-// Compared that to the trading time clusters.
    MqlRates BarPrice[];
    ArraySetAsSeries(BarPrice,true);
 
    CopyRates(_Symbol,PERIOD_M1,0,3,BarPrice);
+
    datetime BarTime = BarPrice[0].time;
 
    MqlDateTime CurrentPriceTime;
-   TimeToStruct(BarTime,CurrentPriceTime);
+   TimeToStruct(TimeCurrent(),CurrentPriceTime);
 
-   int CurrentMin = CurrentPriceTime.min;
+   int current_hour = CurrentPriceTime.hour;
+   int current_min = CurrentPriceTime.min;
 
 // Get the entry time details
    MqlDateTime PriceTime;
 
    TimeToStruct(EntryTime,PriceTime);
 
-   int CheckMin = PriceTime.min;
+   int check_hour = PriceTime.hour;
+   int check_min = PriceTime.min;
 
 // Get the time difference
-   int TimeDifference = CurrentMin - CheckMin;
+   int hour_difference = current_hour - check_hour;
+   int min_difference  = (current_min+(hour_difference*60)) - check_min;
 
-   return TimeDifference;
+//(current_min+(hour_difference*60))
+
+   return min_difference;
 
   } // END OF THE ENTRY TIMER FUNCTION
 //+------------------------------------------------------------------+
@@ -1345,8 +1350,12 @@ string ExpertFunctions::TradingCandle()
 
 // Variable declaration
    double price_diff    = 0;
+   double price_ratio   = 0;
+   double price_ratio2  = 0;
    double price_diffHC  = 0;
    double price_diffHO  = 0;
+   double price_diffOL  = 0;
+   double price_diffCL  = 0;
    string candle_indication = "";
 
 // Get current price array and sort information
@@ -1361,13 +1370,13 @@ string ExpertFunctions::TradingCandle()
    double close_price = NormalizeDouble(CandleArray[0].close,_Digits);
 
    datetime time_candle = CandleArray[0].time;
-   
+
    double high_price1  = NormalizeDouble(CandleArray[1].high,_Digits);
    double low_price1   = NormalizeDouble(CandleArray[1].low,_Digits);
    double open_price1 = NormalizeDouble(CandleArray[1].open,_Digits);
    double close_price1 = NormalizeDouble(CandleArray[1].close,_Digits);
 
-   datetime time_candle1 = CandleArray[0].time;
+   datetime time_candle1 = CandleArray[1].time;
 
 // If it is a buy candlestick
    if(close_price>open_price)
@@ -1376,10 +1385,18 @@ string ExpertFunctions::TradingCandle()
       price_diffHC = high_price-close_price;
       price_diffHO = high_price-open_price;
 
-      if(price_diff>=1000)
+      price_ratio = price_diffHC/price_diffHO;
+
+      if(price_diff>=800 && close_price>(open_price1+(75*_Point)))
         {
-         if(MarketDirection(1)=="SELL" && close_price>close_price1)
+         if(price_ratio>=0.55&&price_ratio<=0.7)
+           {
             candle_indication = "BUY";
+           }
+         else
+           {
+            candle_indication = "NO BUY";
+           }
         }
      }
 
@@ -1387,17 +1404,30 @@ string ExpertFunctions::TradingCandle()
    if(close_price<open_price)
      {
       price_diff = (NormalizeDouble(high_price - low_price,2))*100;
-      price_diffHC = low_price-close_price;
-      price_diffHO = low_price-open_price;
+      price_diffCL = close_price-low_price;
+      price_diffOL = open_price-low_price;
 
-      if(price_diff>=1000)
+      price_ratio2 = price_diffCL/price_diffOL;
+
+      Comment("Price Ratio: ",price_ratio2,"\n"
+              "Price Difference: ",price_diff,"\n"
+              "Close Price1: ",close_price1);
+
+      if(price_diff>=800 && close_price<close_price1)
         {
-         if(MarketDirection(1)=="BUY" && close_price<close_price1)
+         if(price_ratio2>=0.2&&price_ratio2<=0.7)
+           {
             candle_indication = "SELL";
+           }
+         else
+           {
+            candle_indication = "NO SELL";
+           }
         }
      }
-     
-     return candle_indication;
+   return candle_indication;
 
   } // END OF THE CANDLE OF INTEREST FUNCTION
 //+------------------------------------------------------------------+
+
+//MarketDirection(1)=="SELL"
