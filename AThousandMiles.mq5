@@ -52,14 +52,13 @@ void OnTick()
       // Check if price is within the trading zone
       if(expert.ExpertZone(Levels,ZoneDeviation,count)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count)<=50 &&(PositionsTotal()==0)&&(OrdersTotal()==0))
         {
-         // Buy Limit at support level
-         if(Bid<expert.Lows()+(50*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask)==true && expert.MarketDirection() == "SELL")
+         // Buy trade at Support Level
+         if(Bid<expert.Lows()+(50*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask)==true && expert.MarketDirectionH1() == "SELL")
             trade.Buy(LotSize,_Symbol,Bid,(Bid-(220*_Point)),Bid+220*_Point,NULL);
-
-         // Sell limit at resistance level
-         if(Ask>expert.Highs()-(50*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask)==true && expert.MarketDirection() == "BUY")
+            
+         // Sell trade at Resistance Level
+         if(Ask>expert.Highs()-(50*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask)==true && expert.MarketDirectionH1() == "BUY")
             trade.Sell(LotSize,_Symbol,Ask,(Ask+(220*_Point)),Ask-220*_Point,NULL);
-
         }
      }
 // Activate the PositionPipProfit function

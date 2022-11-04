@@ -64,7 +64,8 @@ public:
    void              PositionPipProfit(int);
    void              PositionPipLoss(int);
    bool              LapsedTimerEntry(int, int);
-   string            MarketDirection(int);
+   string            MarketDirectionH1();
+   string            MarketDirectionH4();
    void              TradeLapsedTime(void);
    void              SimplePositionClose(void);
    bool              PricedTime(datetime);
@@ -958,7 +959,47 @@ bool ExpertFunctions::LapsedTimerEntry(int Twelfth, int Fiftieth)
 //+------------------------------------------------------------------+
 //|                      MARKET DIRECTION FUNCTION                   |
 //+------------------------------------------------------------------+
-string ExpertFunctions::MarketDirection(int bar_number)
+string ExpertFunctions::MarketDirectionH1()
+  {
+
+//Variable declaration
+   string direction = "";
+
+// REMOVE REDUDANCY BELOW ON GETTING CURRENT ARRAY PRICES
+// Get current price array
+   MqlRates CurrentArray[];
+
+// Sort the array data from zero
+   ArraySetAsSeries(CurrentArray,true);
+
+// Get data within the array
+   CopyRates(_Symbol,PERIOD_H1,0,3,CurrentArray);
+
+   double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
+   double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
+   double openPrice1 = NormalizeDouble(CurrentArray[0].open,_Digits);
+   double currentPrice1 = NormalizeDouble(CurrentArray[0].close,_Digits);
+
+// Determine if the current price is higher or lower than the open price
+// in-order to confirm market direction
+
+   if(currentPrice1>openPrice1)
+     {
+      direction = "BUY";
+     }
+   if(currentPrice1<openPrice1)
+     {
+      direction = "SELL";
+     }
+   return direction;
+
+  }//END OF THE MARKET DIRECTION FUNCTION
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//|                      MARKET DIRECTION FUNCTION                   |
+//+------------------------------------------------------------------+
+string ExpertFunctions::MarketDirectionH4()
   {
 
 //Variable declaration
@@ -974,10 +1015,10 @@ string ExpertFunctions::MarketDirection(int bar_number)
 // Get data within the array
    CopyRates(_Symbol,PERIOD_H4,0,3,CurrentArray);
 
-   double highPrice1 = NormalizeDouble(CurrentArray[bar_number].high,_Digits);
-   double lowPrice1 = NormalizeDouble(CurrentArray[bar_number].low,_Digits);
-   double openPrice1 = NormalizeDouble(CurrentArray[bar_number].open,_Digits);
-   double currentPrice1 = NormalizeDouble(CurrentArray[bar_number].close,_Digits);
+   double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
+   double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
+   double openPrice1 = NormalizeDouble(CurrentArray[0].open,_Digits);
+   double currentPrice1 = NormalizeDouble(CurrentArray[0].close,_Digits);
 
 // Determine if the current price is higher or lower than the open price
 // in-order to confirm market direction
@@ -1389,13 +1430,14 @@ string ExpertFunctions::TradingCandle()
       
       Comment("Price Ratio: ",price_ratio,"\n"
               "Price Difference: ",price_diff,"\n"
-              "Close Price1: ",close_price);
+              "Prev. H4 Close Price: ",close_price1);
 
-      if(price_diff>=800 && close_price>(open_price1+(75*_Point)))
+      if(price_diff>=350 && close_price>(open_price1+(75*_Point)))
         {
-         if(price_ratio>=0.55&&price_ratio<=0.7)
+         if(price_ratio>=0.2&&price_ratio<=0.7)
            {
             candle_indication = "BUY";
+            Alert("Check Charts! Candle of Interest");
            }
          else
            {
@@ -1415,13 +1457,14 @@ string ExpertFunctions::TradingCandle()
 
       Comment("Price Ratio: ",price_ratio2,"\n"
               "Price Difference: ",price_diff,"\n"
-              "Close Price1: ",close_price1);
+              "Prev. H4 Close Price: ",close_price1);
 
-      if(price_diff>=800 && close_price<close_price1)
+      if(price_diff>=350 && close_price<close_price1)
         {
-         if(price_ratio2>=0.55&&price_ratio2<=0.7)
+         if(price_ratio2>=0.2&&price_ratio2<=0.7)
            {
             candle_indication = "SELL";
+            Alert("Check Charts! Candle of Interest");
            }
          else
            {
