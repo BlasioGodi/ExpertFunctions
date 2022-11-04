@@ -71,7 +71,7 @@ public:
    bool              PricedTime(datetime);
    int               EntryTimer(datetime);
    void              FailSafe(void);
-   string            TradingCandle(void);
+   string            TradingCandle(int &pips);
 
 
   };
@@ -1062,7 +1062,6 @@ void ExpertFunctions::SimplePositionClose(void)
   }//END OF THE SIMPLE POSITION CLOSE FUNCTION
 //+------------------------------------------------------------------+
 
-//Make ZoneSignal Function report the tradelevel as well.
 //+------------------------------------------------------------------+
 //|                     ZONE SIGNAL FUNCTION                         |
 //+------------------------------------------------------------------+
@@ -1137,7 +1136,6 @@ int ExpertFunctions::ZoneSignal(double Level,double PointChange, int &Pips)
   }// END OF THE ZONE SIGNAL FUNCTION
 //+------------------------------------------------------------------+
 
-//Make ZoneSignal Function report the tradelevel as well.
 //+------------------------------------------------------------------+
 //|                      EXPERT ZONE FUNCTION                        |
 //+------------------------------------------------------------------+
@@ -1291,9 +1289,6 @@ void ExpertFunctions::FailSafe(void)
          // Get the position profit for the current position
          double PositionProfit = PositionGetDouble(POSITION_PROFIT);
 
-         // Get the current deal price for the current position (YOU MIGHT NOT NEED THIS BUT KEEP IT NONETHELESS)
-         double dealPrice=HistoryDealGetDouble(PositionTicket,DEAL_PRICE);
-
          //Calculate the open price for the position
          double PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
 
@@ -1386,7 +1381,7 @@ int ExpertFunctions::EntryTimer(datetime EntryTime)
 //+------------------------------------------------------------------+
 //|                      CANDLE OF INTEREST FUNCTION                 |
 //+------------------------------------------------------------------+
-string ExpertFunctions::TradingCandle()
+string ExpertFunctions::TradingCandle(int &pips)
   {
 
 // Variable declaration
@@ -1427,21 +1422,33 @@ string ExpertFunctions::TradingCandle()
       price_diffHO = high_price-open_price;
 
       price_ratio = price_diffHC/price_diffHO;
-      
-      Comment("Price Ratio: ",price_ratio,"\n"
+
+      Comment("Price Ratio: ",NormalizeDouble(price_ratio,4),"\n"
               "Price Difference: ",price_diff,"\n"
               "Prev. H4 Close Price: ",close_price1);
 
-      if(price_diff>=350 && close_price>(open_price1+(75*_Point)))
+      if(price_diff>=450 && close_price>(open_price1+(75*_Point)))
         {
-         if(price_ratio>=0.2&&price_ratio<=0.7)
+         if(price_ratio>=0.55 && price_ratio<=0.75)
            {
             candle_indication = "BUY";
-            Alert("Check Charts! Candle of Interest");
+
+            if(pips<=1)
+              {
+               Alert("Check Charts! Candle of Interest");
+               SendNotification("Check Charts! Candle of Interest");
+              }
+            pips++;
            }
          else
            {
             candle_indication = "NO BUY";
+            
+            if(price_ratio2>=0.0 && price_ratio2<=0.2)
+               pips = 0;
+            else
+               if(price_ratio2>=0.9 && price_ratio2<=0.99)
+                     pips = 0;
            }
         }
      }
@@ -1455,20 +1462,32 @@ string ExpertFunctions::TradingCandle()
 
       price_ratio2 = price_diffCL/price_diffOL;
 
-      Comment("Price Ratio: ",price_ratio2,"\n"
+      Comment("Price Ratio: ",NormalizeDouble(price_ratio2,4),"\n"
               "Price Difference: ",price_diff,"\n"
               "Prev. H4 Close Price: ",close_price1);
 
-      if(price_diff>=350 && close_price<close_price1)
+      if(price_diff>=450 && close_price<close_price1)
         {
-         if(price_ratio2>=0.2&&price_ratio2<=0.7)
+         if(price_ratio2>=0.55 && price_ratio2<=0.75)
            {
             candle_indication = "SELL";
-            Alert("Check Charts! Candle of Interest");
+
+            if(pips<=1)
+              {
+               Alert("Check Charts! Candle of Interest");
+               SendNotification("Check Charts! Candle of Interest");
+              }
+            pips++;
            }
          else
            {
             candle_indication = "NO SELL";
+            
+            if(price_ratio2>=0.0 && price_ratio2<=0.2)
+               pips = 0;
+            else
+               if(price_ratio2>=0.9 && price_ratio2<=0.99)
+                     pips = 0;
            }
         }
      }
@@ -1476,5 +1495,3 @@ string ExpertFunctions::TradingCandle()
 
   } // END OF THE CANDLE OF INTEREST FUNCTION
 //+------------------------------------------------------------------+
-
-//MarketDirection(1)=="SELL"

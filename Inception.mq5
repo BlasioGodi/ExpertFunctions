@@ -1,33 +1,35 @@
-//include the file Trade.mqh
+//Header Files
 #include<Trade\Trade.mqh>
 #include<ExpertFunctions.mqh>
+#include <Trade\DealInfo.mqh>
 
-//Create an instance of CTrade
+//Create Class instances
+CDealInfo dealInfo;
 CTrade trade;
-
-//Create an instance of ExpertFunctions
 ExpertFunctions expert;
 
-enum ENUM_TIMERS
-  {
-   ZEROTOTHREE_YES = 1,
-   ZEROTOTHREE_NO = 2,
 
-   THREETOFIVE_YES = 3,
-   THREETOFIVE_NO = 4,
-
-   FIVETOTEN_YES = 5,
-   FIVETOTEN_NO = 6,
-
-   TENTOFIFTEEN_YES = 7,
-   TENTOFIFTEEN_NO = 8,
-
-  };
+//enum ENUM_TIMERS
+//  {
+//   ZEROTOTHREE_YES = 1,
+//   ZEROTOTHREE_NO = 2,
+//
+//   THREETOFIVE_YES = 3,
+//   THREETOFIVE_NO = 4,
+//
+//   FIVETOTEN_YES = 5,
+//   FIVETOTEN_NO = 6,
+//
+//   TENTOFIFTEEN_YES = 7,
+//   TENTOFIFTEEN_NO = 8,
+//
+//  };
 
 extern int pip_profit = 0;
 extern int pip_loss = 0;
+extern int count = 0;
 
-input double LotSize = 0.1;
+input double LotSize = 0.0;
 
 //+------------------------------------------------------------------+
 //|                    ON-TICK MAIN FUNCTION                         |
@@ -42,15 +44,17 @@ void OnTick()
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
 // IDENTIFY TRADE ENTRY POINT (WORK IN PROGRESS)
-   if(expert.TradingCandle()=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
+   if(expert.TradingCandle(count)=="BUY" && CheckClosedDeals()==true && PositionsTotal()==0 && OrdersTotal()==0)
      {
       trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
      }
    else
-      if(expert.TradingCandle()=="SELL" && PositionsTotal()==0 && OrdersTotal()==0)
+      if(expert.TradingCandle(count)=="SELL" && CheckClosedDeals()==true && PositionsTotal()==0 && OrdersTotal()==0)
         {
          trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
         }
+
+   CheckClosedDeals();
 
 // TRADE EXECUTION PROCESS
    if(PositionSelect(_Symbol)==true)
@@ -79,7 +83,7 @@ void OnTick()
                   //Comment("Trade is between 5-10mins");
                   pip_profit = 20;
                   pip_loss = 180;
-                  
+
                   //Activate the Position Pip loss function
                   expert.PositionPipLoss(pip_loss);
                  }
@@ -106,8 +110,68 @@ void OnTick()
 
          // Activate the PositionPipProfit function
          expert.PositionPipProfit(pip_profit);
+
+
         }
      }
 
   }// END OF THE ON-TICK MAIN FUNCTION
+//+------------------------------------------------------------------+
+
+
+//+------------------------------------------------------------------+
+//|                 CHECK CLOSED DEALS FUNCTION                      |
+//+------------------------------------------------------------------+
+bool CheckClosedDeals()
+  {
+   HistorySelect(0,TimeCurrent());
+   uint     total_Deals      = HistoryDealsTotal();
+   ulong    deal_Ticket      = 0;
+   bool value = false;
+
+   for(uint i = 1; i < total_Deals; i++)
+     {
+      deal_Ticket = HistoryDealGetTicket(i);
+
+      if(dealInfo.SelectByIndex(i))
+        {
+         //--Deal Information
+         long     deal_entry        =HistoryDealGetInteger(deal_Ticket,DEAL_ENTRY);
+         long     deal_type         =HistoryDealGetInteger(deal_Ticket,DEAL_TYPE);
+         long     deal_time         =HistoryDealGetInteger(deal_Ticket,DEAL_TIME);
+         double   order_profit      =HistoryDealGetDouble(deal_Ticket,DEAL_PROFIT);
+
+         datetime deal_realTime     =(datetime)deal_time;
+         datetime time_local = TimeCurrent();
+
+         MqlDateTime CurrentTime;
+         MqlDateTime DealTime;
+
+         TimeToStruct(time_local,CurrentTime);
+         TimeToStruct(deal_realTime,DealTime);
+
+         int deal_hours = DealTime.hour;
+         int deal_mins = DealTime.min;
+
+         int current_hours = CurrentTime.hour;
+         int current_mins = CurrentTime.min;
+
+         int hour_diff = current_hours - deal_hours;
+         int min_diff  = (current_mins+(hour_diff*60)) - deal_mins;
+
+         //Check if the currency pair fits
+         if(deal_type==DEAL_TYPE_BUY||deal_type==DEAL_TYPE_SELL)
+           {
+            if(deal_entry==1)
+              {
+               if(min_diff>=15)
+                  value = true;
+               else
+                  value = false;
+              }
+           }
+        }
+     }
+     return value;
+  }//END OF CHECK CLOSED DEALS FUNCTION
 //+------------------------------------------------------------------+
