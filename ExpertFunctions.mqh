@@ -71,7 +71,7 @@ public:
    bool              PricedTime(datetime);
    int               EntryTimer(datetime);
    void              FailSafe(void);
-   string            TradingCandle(int &pips);
+   string            TradingCandle(int&);
 
 
   };
@@ -1423,13 +1423,9 @@ string ExpertFunctions::TradingCandle(int &pips)
 
       price_ratio = price_diffHC/price_diffHO;
 
-      Comment("Price Ratio: ",NormalizeDouble(price_ratio,4),"\n"
-              "Price Difference: ",price_diff,"\n"
-              "Prev. H4 Close Price: ",close_price1);
-
       if(price_diff>=450 && close_price>(open_price1+(75*_Point)))
         {
-         if(price_ratio>=0.55 && price_ratio<=0.75)
+         if(price_ratio>=0.45 && price_ratio<=0.75)
            {
             candle_indication = "BUY";
 
@@ -1443,14 +1439,19 @@ string ExpertFunctions::TradingCandle(int &pips)
          else
            {
             candle_indication = "NO BUY";
-            
+
             if(price_ratio2>=0.0 && price_ratio2<=0.2)
                pips = 0;
             else
                if(price_ratio2>=0.9 && price_ratio2<=0.99)
-                     pips = 0;
+                  pips = 0;
            }
         }
+
+      Comment("Price Ratio: ",NormalizeDouble(price_ratio,4),"\n"
+              "Price Difference: ",price_diff,"\n"
+              "Trade Direction: ",candle_indication,"\n"
+              "Prev. H4 Close Price: ",close_price1);
      }
 
 // If it is a sell candlestick
@@ -1462,13 +1463,9 @@ string ExpertFunctions::TradingCandle(int &pips)
 
       price_ratio2 = price_diffCL/price_diffOL;
 
-      Comment("Price Ratio: ",NormalizeDouble(price_ratio2,4),"\n"
-              "Price Difference: ",price_diff,"\n"
-              "Prev. H4 Close Price: ",close_price1);
-
       if(price_diff>=450 && close_price<close_price1)
         {
-         if(price_ratio2>=0.55 && price_ratio2<=0.75)
+         if(price_ratio2>=0.45 && price_ratio2<=0.75)
            {
             candle_indication = "SELL";
 
@@ -1482,14 +1479,19 @@ string ExpertFunctions::TradingCandle(int &pips)
          else
            {
             candle_indication = "NO SELL";
-            
+
             if(price_ratio2>=0.0 && price_ratio2<=0.2)
                pips = 0;
             else
                if(price_ratio2>=0.9 && price_ratio2<=0.99)
-                     pips = 0;
+                  pips = 0;
            }
         }
+
+      Comment("Price Ratio: ",NormalizeDouble(price_ratio2,4),"\n"
+              "Price Difference: ",price_diff,"\n"
+              "Trade Direction: ",candle_indication,"\n"
+              "Prev. H4 Close Price: ",close_price1);
      }
    return candle_indication;
 
