@@ -32,7 +32,6 @@ extern int count = 0;
 input double LotSize = 0.0;
 input int total_layers = 10;
 
-input int Time_3_to_5 = 0;
 input int Time_5_to_10 = 0;
 input int Time_10_to_15 = 0;
 input int Time_15_and_above = 0;
@@ -83,8 +82,6 @@ void OnTick()
                //Comment("Trade is between 3-5mins");
                pip_profit = 50;
 
-                  //Activate the Position Pip loss function
-                  expert.PositionPipLoss(Time_3_to_5);
               }
             else
                if(timer_value>=5 && timer_value<=10)
