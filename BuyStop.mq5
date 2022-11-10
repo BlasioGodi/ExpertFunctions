@@ -27,6 +27,8 @@ void OnTick()
 
 // Get the local date and time
    datetime current_time = TimeLocal();
+   
+   Comment(current_time);
 
    if(current_time==start_date)
      {

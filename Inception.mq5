@@ -123,7 +123,7 @@ void OnTick()
 
 
 //+------------------------------------------------------------------+
-//|                 CHECK CLOSED DEALS FUNCTION (CORRECT DAILY DIFFERENCE                     |
+//|      CHECK CLOSED DEALS FUNCTION (CORRECT DAILY DIFFERENCE       |
 //+------------------------------------------------------------------+
 bool CheckClosedDeals()
   {
