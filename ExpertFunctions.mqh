@@ -44,7 +44,7 @@ public:
                      ExpertFunctions();
                     ~ExpertFunctions();
 
-   //Function Definition/Function Prototype
+   //Function Prototype
    string            TradeAlert(void);
    void              TakeProfit(ulong,double);
    void              BuyTrailingStop(double);
@@ -54,17 +54,21 @@ public:
    void              CheckCloseTime(double);
    void              PendingOrderDelete(void);
    string            TimeFrame(int,int);
+   
+   //--Redundant to be omitted
    string            SupportAndResistance(double, double,int,double,double,double,double,double,double,double,double);
-   double            Highs(void);
-   double            Lows(void);
+   //--Redundant to be omitted
+   
+   double            Highs(ENUM_TIMEFRAMES);
+   double            Lows(ENUM_TIMEFRAMES);
    void              SimplePositionDetails(void);
-   bool              PriceZone(vector&, double, double);
+   bool              PriceZone(vector&, double, double, ENUM_TIMEFRAMES);
    int               ZoneSignal(double, double, int&);
-   int               ExpertZone(vector&, double, int &);
+   int               ExpertZone(vector&, double, int &, ENUM_TIMEFRAMES);
    void              PositionPipProfit(int);
    void              PositionPipLoss(int);
    bool              LapsedTimerEntry(int, int);
-   string            MarketDirectionH1();
+   string            MarketDirection(ENUM_TIMEFRAMES);
    string            MarketDirectionH4();
    void              TradeLapsedTime(void);
    void              SimplePositionClose(void);
@@ -549,7 +553,7 @@ string ExpertFunctions::SupportAndResistance(double Ask, double Bid, int Deviati
 //+------------------------------------------------------------------+
 //|                        HIGH FUNCTION                             |
 //+------------------------------------------------------------------+
-double ExpertFunctions::Highs(void)
+double ExpertFunctions::Highs(ENUM_TIMEFRAMES time_period)
   {
 
 //Variable declaration
@@ -562,7 +566,7 @@ double ExpertFunctions::Highs(void)
    ArraySetAsSeries(CurrentArray,true);
 
 // Get data within the array
-   CopyRates(_Symbol,PERIOD_H1,0,3,CurrentArray);
+   CopyRates(_Symbol,time_period,0,3,CurrentArray);
 
    double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
    double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
@@ -583,7 +587,7 @@ double ExpertFunctions::Highs(void)
 //+------------------------------------------------------------------+
 //|                      LOW FUNCTION                                |
 //+------------------------------------------------------------------+
-double ExpertFunctions::Lows(void)
+double ExpertFunctions::Lows(ENUM_TIMEFRAMES time_period)
   {
 
 //Variable declaration
@@ -596,7 +600,7 @@ double ExpertFunctions::Lows(void)
    ArraySetAsSeries(CurrentArray,true);
 
 // Get data within the array
-   CopyRates(_Symbol,PERIOD_H1,0,3,CurrentArray);
+   CopyRates(_Symbol,time_period,0,3,CurrentArray);
 
    double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
    double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
@@ -712,7 +716,7 @@ void ExpertFunctions::SimplePositionDetails(void)
 //+------------------------------------------------------------------+
 //|                      PRICE ZONE FUNCTION                         |
 //+------------------------------------------------------------------+
-bool ExpertFunctions::PriceZone(vector &PriceLevel,double PointChange, double AskingPrice)
+bool ExpertFunctions::PriceZone(vector &PriceLevel,double PointChange, double AskingPrice, ENUM_TIMEFRAMES period)
   {
 
 // Price entry
@@ -724,7 +728,7 @@ bool ExpertFunctions::PriceZone(vector &PriceLevel,double PointChange, double As
    ArraySetAsSeries(CurrentPriceArray,true);
 
 // Get data within the array
-   CopyRates(_Symbol,_Period,0,3,CurrentPriceArray);
+   CopyRates(_Symbol,period,0,3,CurrentPriceArray);
 
    double highPrice1 = NormalizeDouble(CurrentPriceArray[0].high,_Digits);
    double lowPrice1 = NormalizeDouble(CurrentPriceArray[0].low,_Digits);
@@ -943,13 +947,13 @@ bool ExpertFunctions::LapsedTimerEntry(int Twelfth, int Fiftieth)
 
    if(CurrentMin>Twelfth && CurrentMin<Fiftieth)
      {
-      Comment("The time is ",BarTime,". Lapsed time is between the 12th and 50th min");
+      //Comment("The time is ",BarTime,". Lapsed time is between the 12th and 50th min");
       return (true);
      }
 
    else
      {
-      Comment("The time is ",BarTime,". Lapsed time is not between the 12th and 50th min");
+      //Comment("The time is ",BarTime,". Lapsed time is not between the 12th and 50th min");
       return (false);
      }
 
@@ -959,7 +963,7 @@ bool ExpertFunctions::LapsedTimerEntry(int Twelfth, int Fiftieth)
 //+------------------------------------------------------------------+
 //|                      MARKET DIRECTION FUNCTION                   |
 //+------------------------------------------------------------------+
-string ExpertFunctions::MarketDirectionH1()
+string ExpertFunctions::MarketDirection(ENUM_TIMEFRAMES timePeriod)
   {
 
 //Variable declaration
@@ -971,9 +975,9 @@ string ExpertFunctions::MarketDirectionH1()
 
 // Sort the array data from zero
    ArraySetAsSeries(CurrentArray,true);
-
+   
 // Get data within the array
-   CopyRates(_Symbol,PERIOD_H1,0,3,CurrentArray);
+   CopyRates(_Symbol,timePeriod,0,3,CurrentArray);
 
    double highPrice1 = NormalizeDouble(CurrentArray[0].high,_Digits);
    double lowPrice1 = NormalizeDouble(CurrentArray[0].low,_Digits);
@@ -1139,7 +1143,7 @@ int ExpertFunctions::ZoneSignal(double Level,double PointChange, int &Pips)
 //+------------------------------------------------------------------+
 //|                      EXPERT ZONE FUNCTION                        |
 //+------------------------------------------------------------------+
-int ExpertFunctions::ExpertZone(vector &Level,double PointChange, int &Pips)
+int ExpertFunctions::ExpertZone(vector &Level,double PointChange, int &Pips, ENUM_TIMEFRAMES time_period)
   {
 // Get current price array
    MqlRates CurrentPriceArray[];
@@ -1148,7 +1152,7 @@ int ExpertFunctions::ExpertZone(vector &Level,double PointChange, int &Pips)
    ArraySetAsSeries(CurrentPriceArray,true);
 
 // Get data within the array
-   CopyRates(_Symbol,_Period,0,3,CurrentPriceArray);
+   CopyRates(_Symbol,time_period,0,3,CurrentPriceArray);
 
    double highPrice1 = NormalizeDouble(CurrentPriceArray[0].high,_Digits);
    double lowPrice1 = NormalizeDouble(CurrentPriceArray[0].low,_Digits);
