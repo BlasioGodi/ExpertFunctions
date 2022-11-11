@@ -27,7 +27,15 @@ input int Min50 = 50;
 
 input int lineWidth = 1;
 input ENUM_LINE_STYLE lineStyle = STYLE_SOLID;
-input color lineColor = clrMediumSpringGreen;
+
+//-- Line Colours
+color lineColor1 = clrMediumSpringGreen;
+color lineColor2 = clrBeige;
+color lineColor3 = clrMagenta;
+color lineColor4 = clrYellow;
+color lineColor5 = clrBlueViolet;
+color lineColor6 = clrRed;
+
 
 input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
@@ -61,12 +69,12 @@ int OnInit()
    names.Name6 = "F";
 
 //Create 1st Object Line
-   expert.CreateObjectLine(Trading_Lvl1,ZoneDeviation,lineColor,lineStyle,lineWidth,names.Name1);
-   expert.CreateObjectLine(Trading_Lvl2,ZoneDeviation,lineColor,lineStyle,lineWidth,names.Name2);
-   expert.CreateObjectLine(Trading_Lvl3,ZoneDeviation,lineColor,lineStyle,lineWidth,names.Name3);
-   expert.CreateObjectLine(Trading_Lvl4,ZoneDeviation,lineColor,lineStyle,lineWidth,names.Name4);
-   expert.CreateObjectLine(Trading_Lvl5,ZoneDeviation,lineColor,lineStyle,lineWidth,names.Name5);
-   expert.CreateObjectLine(Trading_Lvl6,ZoneDeviation,lineColor,lineStyle,lineWidth,names.Name6);
+   expert.CreateObjectLine(Trading_Lvl1,ZoneDeviation,lineColor1,lineStyle,lineWidth,names.Name1);
+   expert.CreateObjectLine(Trading_Lvl2,ZoneDeviation,lineColor2,lineStyle,lineWidth,names.Name2);
+   expert.CreateObjectLine(Trading_Lvl3,ZoneDeviation,lineColor3,lineStyle,lineWidth,names.Name3);
+   expert.CreateObjectLine(Trading_Lvl4,ZoneDeviation,lineColor4,lineStyle,lineWidth,names.Name4);
+   expert.CreateObjectLine(Trading_Lvl5,ZoneDeviation,lineColor5,lineStyle,lineWidth,names.Name5);
+   expert.CreateObjectLine(Trading_Lvl6,ZoneDeviation,lineColor6,lineStyle,lineWidth,names.Name6);
    
    return(INIT_SUCCEEDED);
   }
@@ -92,16 +100,34 @@ void OnTick()
 // Get the bid price
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
-//Get the PositionType (Either buy or sell)
+// Get the PositionType (Either buy or sell)
    ulong PositionType = PositionGetInteger(POSITION_TYPE);
+
+// Set the timeframe periods  
+   ENUM_TIMEFRAMES period_m1 = PERIOD_M1;
+   ENUM_TIMEFRAMES period_m5 = PERIOD_M5;
+   ENUM_TIMEFRAMES period_m15 = PERIOD_M15;
+   ENUM_TIMEFRAMES period_m30 = PERIOD_M30;
+   ENUM_TIMEFRAMES period_h1 = PERIOD_H1;
+   ENUM_TIMEFRAMES period_h4 = PERIOD_H4;
+   ENUM_TIMEFRAMES period_d1 = PERIOD_D1;
+
 
 //+------------------------------------------------------------------ +
 // INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
 
-//Execute trades between the 12th min and 50th min
+// Execute trades between the 12th min and 50th min
    if(expert.TimeFrame(StartTime,EndTime)=="Perfect Session" && expert.LapsedTimerEntry(Min12,Min50) == true)
      {
-      Comment("Market Direction: ", expert.MarketDirection(trade_period));
+      Comment("#Trade Direction: ", expert.MarketDirection(trade_period),"\n"
+              "#M1-Chart Direction: ", expert.MarketDirection(period_m1),"\n"
+              "#M5-Chart Direction: ", expert.MarketDirection(period_m5),"\n"
+              "#M15-Chart Direction: ", expert.MarketDirection(period_m15),"\n"
+              "#M30-Chart Direction: ", expert.MarketDirection(period_m30),"\n"
+              "#H1-Chart Direction: ", expert.MarketDirection(period_h1),"\n"
+              "#H4-Chart Direction: ", expert.MarketDirection(period_h4),"\n"
+              "#D1-Chart Direction: ", expert.MarketDirection(period_d1)
+             );
       // Check if price is within the trading zone
       if(expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 &&(PositionsTotal()==0)&&(OrdersTotal()==0))
         {
@@ -116,8 +142,6 @@ void OnTick()
      }
 // Activate the PositionPipProfit function
    expert.PositionPipProfit(DesiredProfitinPips);
-
-// Rate of change of price
 
 // INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
 //+------------------------------------------------------------------+
