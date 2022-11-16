@@ -40,6 +40,7 @@ color lineColor6 = clrRed;
 input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
 extern int count = 0;
+extern int pip_loss = 200;
 extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6};
 
 //Temporary Code Measure to draw lines using struct
@@ -133,15 +134,18 @@ void OnTick()
         {
          // Buy trade at Support Level
          if(Bid<expert.Lows(trade_period)+(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL")
-            trade.Buy(LotSize,_Symbol,Bid,(Bid-(220*_Point)),Bid+220*_Point,NULL);
+            trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
 
          // Sell trade at Resistance Level
          if(Ask>expert.Highs(trade_period)-(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "BUY")
-            trade.Sell(LotSize,_Symbol,Ask,(Ask+(220*_Point)),Ask-220*_Point,NULL);
+            trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
         }
      }
 // Activate the PositionPipProfit function
    expert.PositionPipProfit(DesiredProfitinPips);
+   
+// Activate the PositionPipLoss function
+   expert.PositionPipLoss(pip_loss);
 
 // INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
 //+------------------------------------------------------------------+
