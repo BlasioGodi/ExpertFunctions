@@ -32,6 +32,11 @@ extern int count = 0;
 input double LotSize = 0.0;
 input int total_layers = 10;
 
+
+input int profit_0_to_5 = 0;
+input int profit_5_to_10 = 0;
+input int profit_10_to_15 = 0;
+
 input int Time_0_to_5 = 0;
 input int Time_5_to_10 = 0;
 input int Time_10_to_15 = 0;
@@ -74,38 +79,38 @@ void OnTick()
 
          if(timer_value>=0 && timer_value<=5)
            {
-            //Comment("Trade is between 0-3mins");
-            pip_profit = 50;
-            
             //Activate the Position Pip loss function
             expert.PositionPipLoss(Time_0_to_5);
+            
+            // Activate the PositionPipProfit function
+            expert.PositionPipProfit(profit_0_to_5);
            }
          else
                if(timer_value>=5 && timer_value<=10)
                  {
-                  //Comment("Trade is between 5-10mins");
-                  pip_profit = 20;
-
                   //Activate the Position Pip loss function
                   expert.PositionPipLoss(Time_5_to_10);
+                  
+                  // Activate the PositionPipProfit function
+                  expert.PositionPipProfit(profit_5_to_10);
                  }
                else
                   if(timer_value>=10 && timer_value<=15)
                     {
-                     //Comment("Trade is between 10-15mins");
-                     pip_profit = 10;
-
                      //Activate the Position Pip loss function
                      expert.PositionPipLoss(Time_10_to_15);
+                     
+                     // Activate the PositionPipProfit function
+                     expert.PositionPipProfit(profit_10_to_15);
                     }
                   else
                      if(timer_value>=15)
                        {
-                        //Comment("Trade is greater than 15mins");
-                        pip_profit = 10;
-
                         //Activate the Position Pip loss function
                         expert.PositionPipLoss(Time_15_and_above);
+                        
+                        // Activate the PositionPipProfit function
+                        expert.PositionPipProfit(profit_10_to_15);
                        }
 
          // Activate the PositionPipProfit function
