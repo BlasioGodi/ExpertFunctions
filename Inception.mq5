@@ -76,16 +76,12 @@ void OnTick()
            {
             //Comment("Trade is between 0-3mins");
             pip_profit = 50;
-            
-            //Activate the Position Pip loss function
-            expert.PositionPipLoss(Time_5_to_10);
            }
          else
             if(timer_value>=3 && timer_value<=5)
               {
                //Comment("Trade is between 3-5mins");
                pip_profit = 50;
-               expert.PositionPipLoss(Time_5_to_10);
 
               }
             else
