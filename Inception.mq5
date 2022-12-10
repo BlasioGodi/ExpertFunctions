@@ -26,7 +26,6 @@ ExpertFunctions expert;
 //  };
 
 extern int pip_profit = 0;
-extern int pip_loss = 0;
 extern int count = 0;
 
 input double LotSize = 0.0;
