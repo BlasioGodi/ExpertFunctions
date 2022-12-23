@@ -176,5 +176,4 @@ bool CheckClosedDeals()
         }
      }
    return value;
-  }//END OF CHECK CLOSED DEALS FUNCTION
-//+------------------------------------------------------------------+
+  }
