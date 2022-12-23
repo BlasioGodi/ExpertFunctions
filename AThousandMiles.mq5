@@ -9,7 +9,8 @@ CTrade trade;
 ExpertFunctions expert;
 
 //User input variables
-input int DesiredProfitinPips = 50;
+input int DesiredProfitinPips = 500;
+input int pip_loss = 200;
 input double Trading_Lvl1 = 0;
 input double Trading_Lvl2 = 0;
 input double Trading_Lvl3 = 0;
@@ -40,7 +41,6 @@ color lineColor6 = clrRed;
 input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
 extern int count = 0;
-extern int pip_loss = 200;
 extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6};
 
 //Temporary Code Measure to draw lines using struct
@@ -144,8 +144,12 @@ void OnTick()
 // Activate the PositionPipProfit function
    expert.PositionPipProfit(DesiredProfitinPips);
    
-// Activate the PositionPipLoss function
+   // Activate the PositionPipProfit function
    expert.PositionPipLoss(pip_loss);
+   
+   
+   
+
 
 // INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
 //+------------------------------------------------------------------+
