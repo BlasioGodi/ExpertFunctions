@@ -74,13 +74,13 @@ void OnTick()
          if(timer_value>=0 && timer_value<=3)
            {
             //Comment("Trade is between 0-3mins");
-            pip_profit = 250;
+            pip_profit = 120;
            }
          else
             if(timer_value>=3 && timer_value<=5)
               {
                //Comment("Trade is between 3-5mins");
-               pip_profit = 250;
+               pip_profit = 120;
 
               }
             else
