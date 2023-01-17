@@ -103,9 +103,9 @@ void OnTick()
 // Get the Ask and Bid price
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
-   
+
 // ExpertZone values
-int expertCount = expert.ExpertZone(Levels,ZoneDeviation,count,trade_period);
+   int expertCount = expert.ExpertZone(Levels,ZoneDeviation,count,trade_period);
 
 //Variable declaration
    string signal = "";
@@ -134,11 +134,17 @@ int expertCount = expert.ExpertZone(Levels,ZoneDeviation,count,trade_period);
            "MySignal: ",signal,"\n",
            "ExpertCount: ",expertCount);
 
-   if(signal=="SELL" && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 && (PositionsTotal()==0)&&(OrdersTotal()==0))
-      trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
+   if(expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 && (PositionsTotal()==0)&&(OrdersTotal()==0))
+     {
+      if(signal="SELL")
+         trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
+     }
 
-   if(signal=="BUY" && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 && (PositionsTotal()==0)&&(OrdersTotal()==0))
-      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+   if(expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 && (PositionsTotal()==0)&&(OrdersTotal()==0))
+     {
+      if(signal="BUY")
+         trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+     }
 
 // Activate the PositionPipProfit function
    expert.PositionPipProfit(pip_profit);
