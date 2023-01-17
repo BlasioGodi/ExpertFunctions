@@ -1,3 +1,12 @@
+//+------------------------------------------------------------------+
+//|                                                     Inception.mq5|
+//|                                      Copyright 2022, Godi Blasio |
+//|                                     https://tradersliquidity.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2022, Godi Blasio"
+#property link      "https://tradersliquidity.com"
+#property version   "1.00"
+
 //Header Files
 #include<Trade\Trade.mqh>
 #include<ExpertFunctions.mqh>
@@ -28,7 +37,7 @@ ExpertFunctions expert;
 extern int pip_profit = 0;
 extern int count = 0;
 
-input double LotSize = 0.0;
+input double LotSize = 0.1;
 input int total_layers = 10;
 
 input int Time_0_to_5 = 0;
@@ -49,12 +58,12 @@ void OnTick()
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
 // IDENTIFY TRADE ENTRY POINT (WORK IN PROGRESS)
-   if(expert.TradingCandle(count)=="BUY" && CheckClosedDeals()==true && PositionsTotal()==0 && OrdersTotal()==0)
+   if(expert.TradingCandle(count)=="BUY" && PositionsTotal()==0 && OrdersTotal()==0)
      {
       trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
      }
    else
-      if(expert.TradingCandle(count)=="SELL" && CheckClosedDeals()==true && PositionsTotal()==0 && OrdersTotal()==0)
+      if(expert.TradingCandle(count)=="SELL" && PositionsTotal()==0 && OrdersTotal()==0)
         {
          trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
         }

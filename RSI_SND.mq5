@@ -1,3 +1,12 @@
+//+------------------------------------------------------------------+
+//|                                                       RSI_SND.mq5|
+//|                                      Copyright 2023, Godi Blasio |
+//|                                     https://tradersliquidity.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2023, Godi Blasio"
+#property link      "https://tradersliquidity.com"
+#property version   "1.00"
+
 //include the file Trade.mqh
 #include<Trade\Trade.mqh>
 #include <ExpertFunctions.mqh>
@@ -9,22 +18,17 @@ CTrade trade;
 ExpertFunctions expert;
 
 //User input variables
-input int DesiredProfitinPips = 500;
+input int pip_profit = 300;
 input int pip_loss = 200;
+input double LotSize = 0;
+
 input double Trading_Lvl1 = 0;
 input double Trading_Lvl2 = 0;
 input double Trading_Lvl3 = 0;
 input double Trading_Lvl4 = 0;
 input double Trading_Lvl5 = 0;
 input double Trading_Lvl6 = 0;
-
 input int ZoneDeviation = 0;
-input double LotSize = 0;
-input int StartTime = 15;
-input int EndTime = 19;
-
-input int Min12 = 12;
-input int Min50 = 50;
 
 input int lineWidth = 1;
 input ENUM_LINE_STYLE lineStyle = STYLE_SOLID;
@@ -37,8 +41,7 @@ color lineColor4 = clrYellow;
 color lineColor5 = clrBlueViolet;
 color lineColor6 = clrRed;
 
-
-input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
+input ENUM_TIMEFRAMES trade_period = PERIOD_H1;
 
 extern int count = 0;
 extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6};
@@ -76,7 +79,7 @@ int OnInit()
    expert.CreateObjectLine(Trading_Lvl4,ZoneDeviation,lineColor4,lineStyle,lineWidth,names.Name4);
    expert.CreateObjectLine(Trading_Lvl5,ZoneDeviation,lineColor5,lineStyle,lineWidth,names.Name5);
    expert.CreateObjectLine(Trading_Lvl6,ZoneDeviation,lineColor6,lineStyle,lineWidth,names.Name6);
-   
+
    return(INIT_SUCCEEDED);
   }
 
@@ -90,66 +93,58 @@ void OnDeinit(const int reason)
 //dvL.Delete();
   }
 
+
 //+------------------------------------------------------------------+
 //|                    ON-TICK MAIN FUNCTION                         |
 //+------------------------------------------------------------------+
 void OnTick()
   {
-// Get the ask price
+
+// Get the Ask and Bid price
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
-
-// Get the bid price
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
-
-// Get the PositionType (Either buy or sell)
-   ulong PositionType = PositionGetInteger(POSITION_TYPE);
-
-// Set the timeframe periods  
-   ENUM_TIMEFRAMES period_m1 = PERIOD_M1;
-   ENUM_TIMEFRAMES period_m5 = PERIOD_M5;
-   ENUM_TIMEFRAMES period_m15 = PERIOD_M15;
-   ENUM_TIMEFRAMES period_m30 = PERIOD_M30;
-   ENUM_TIMEFRAMES period_h1 = PERIOD_H1;
-   ENUM_TIMEFRAMES period_h4 = PERIOD_H4;
-   ENUM_TIMEFRAMES period_d1 = PERIOD_D1;
-
-
-//+------------------------------------------------------------------ +
-// INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
-
-// Execute trades between the 12th min and 50th min
-   if(expert.TimeFrame(StartTime,EndTime)=="Perfect Session" && expert.LapsedTimerEntry(Min12,Min50) == true)
-     {
-      Comment("#Trade Direction: ", expert.MarketDirection(trade_period),"\n"
-              "#M1-Chart Direction: ", expert.MarketDirection(period_m1),"\n"
-              "#M5-Chart Direction: ", expert.MarketDirection(period_m5),"\n"
-              "#M15-Chart Direction: ", expert.MarketDirection(period_m15),"\n"
-              "#M30-Chart Direction: ", expert.MarketDirection(period_m30),"\n"
-              "#H1-Chart Direction: ", expert.MarketDirection(period_h1),"\n"
-              "#H4-Chart Direction: ", expert.MarketDirection(period_h4),"\n"
-              "#D1-Chart Direction: ", expert.MarketDirection(period_d1)
-             );
-      // Check if price is within the trading zone
-      if(expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 &&(PositionsTotal()==0)&&(OrdersTotal()==0))
-        {
-         // Buy trade at Support Level
-         if(Bid<expert.Lows(trade_period)+(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL")
-            trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
-
-         // Sell trade at Resistance Level
-         if(Ask>expert.Highs(trade_period)-(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "BUY")
-            trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
-        }
-     }
-// Activate the PositionPipProfit function
-   expert.PositionPipProfit(DesiredProfitinPips);
    
+// ExpertZone values
+int expertCount = expert.ExpertZone(Levels,ZoneDeviation,count,trade_period);
+
+//Variable declaration
+   string signal = "";
+
+//Create array for RSI Values
+   double RSIArray[];
+   int myRSIDefinition=iRSI(_Symbol,_Period,14,PRICE_CLOSE);
+
+//Sort array values and fill the array
+   ArraySetAsSeries(RSIArray,true);
+   CopyBuffer(myRSIDefinition,0,0,3,RSIArray);
+
+//Get the RSI Value
+   double myRSIValue = NormalizeDouble(RSIArray[0],2);
+
+   if(myRSIValue>70)
+      signal="SELL";
+   else
+      if(myRSIValue<30)
+         signal="BUY";
+      else
+         signal="No signal, Wait";
+
+//Comment and check
+   Comment("MyRSI_Value: ",myRSIValue,"\n",
+           "MySignal: ",signal,"\n",
+           "ExpertCount: ",expertCount);
+
+   if(signal=="SELL" && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 && (PositionsTotal()==0)&&(OrdersTotal()==0))
+      trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
+
+   if(signal=="BUY" && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 && (PositionsTotal()==0)&&(OrdersTotal()==0))
+      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+
+// Activate the PositionPipProfit function
+   expert.PositionPipProfit(pip_profit);
+
 // Activate the PositionPipLoss function
    expert.PositionPipLoss(pip_loss);
 
-// INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
-//+------------------------------------------------------------------+
-
-
-  }// END OF THE ON-TICK MAIN FUNCTION
+  }
 //+------------------------------------------------------------------+

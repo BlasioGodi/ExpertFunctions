@@ -54,11 +54,11 @@ public:
    void              CheckCloseTime(double);
    void              PendingOrderDelete(void);
    string            TimeFrame(int,int);
-   
+
    //--Redundant to be omitted
    string            SupportAndResistance(double, double,int,double,double,double,double,double,double,double,double);
    //--Redundant to be omitted
-   
+
    double            Highs(ENUM_TIMEFRAMES);
    double            Lows(ENUM_TIMEFRAMES);
    void              SimplePositionDetails(void);
@@ -76,6 +76,7 @@ public:
    int               EntryTimer(datetime);
    void              FailSafe(void);
    string            TradingCandle(int&);
+   void              CheckRSIValue(void);
 
 
   };
@@ -975,7 +976,7 @@ string ExpertFunctions::MarketDirection(ENUM_TIMEFRAMES timePeriod)
 
 // Sort the array data from zero
    ArraySetAsSeries(CurrentArray,true);
-   
+
 // Get data within the array
    CopyRates(_Symbol,timePeriod,0,3,CurrentArray);
 
@@ -1209,8 +1210,6 @@ int ExpertFunctions::ExpertZone(vector &Level,double PointChange, int &Pips, ENU
 
         }
      }//End of the For Loop
-
-//Comment("The Current Pip count: ", Pips);
 
    return(Pips);
 
@@ -1500,4 +1499,40 @@ string ExpertFunctions::TradingCandle(int &pips)
    return candle_indication;
 
   } // END OF THE CANDLE OF INTEREST FUNCTION
+//+------------------------------------------------------------------+
+
+
+//+------------------------------------------------------------------+
+//|                     CHECK RSI VALUE FUNCTION                     |
+//+------------------------------------------------------------------+
+void ExpertFunctions::CheckRSIValue()
+  {
+//Variable declaration
+   string signal = "";
+
+//Create array for RSI Values
+   double RSIArray[];
+   int myRSIDefinition=iRSI(_Symbol,_Period,14,PRICE_CLOSE);
+
+//Sort array values and fill the array
+   ArraySetAsSeries(RSIArray,true);
+   CopyBuffer(myRSIDefinition,0,0,3,RSIArray);
+
+//Get the RSI Value
+   double myRSIValue = NormalizeDouble(RSIArray[0],2);
+
+   if(myRSIValue>70)
+      signal="SELL";
+   else
+      if(myRSIValue<30)
+         signal="BUY";
+      else
+         signal="No signal, Wait";
+
+//Comment and check
+   Comment("MyRSI_Value: ",myRSIValue,"\n",
+           "MySignal: ",signal);
+
+
+  }
 //+------------------------------------------------------------------+
