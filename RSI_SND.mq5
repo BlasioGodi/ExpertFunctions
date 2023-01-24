@@ -21,6 +21,8 @@ ExpertFunctions expert;
 input int pip_profit = 300;
 input int pip_loss = 200;
 input double LotSize = 0;
+input double top_rsi = 0;
+input double bottom_rsi = 0;
 
 input double Trading_Lvl1 = 0;
 input double Trading_Lvl2 = 0;
@@ -121,10 +123,10 @@ int expertCount = expert.ExpertZone(Levels,ZoneDeviation,count,trade_period);
 //Get the RSI Value
    double myRSIValue = NormalizeDouble(RSIArray[0],2);
 
-   if(myRSIValue>70)
+   if(myRSIValue>top_rsi)
       signal="SELL";
    else
-      if(myRSIValue<30)
+      if(myRSIValue<bottom_rsi)
          signal="BUY";
       else
          signal="No signal, Wait";
