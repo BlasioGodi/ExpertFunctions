@@ -22,6 +22,8 @@ input double Trading_Lvl1 = 0;
 
 input int ZoneDeviation = 0;
 input double LotSize = 0;
+input int stop_loss = 0;
+input int take_profit =0;
 
 //-- Line Properties
 color lineColor1 = clrMediumSpringGreen;
@@ -72,14 +74,16 @@ void OnTick()
         {
          ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
          double CurrentStopLoss=PositionGetDouble(POSITION_SL);
-         double CurrentTakepProfit=PositionGetDouble(POSITION_TP);
+         double CurrentTakeProfit=PositionGetDouble(POSITION_TP);
 
          Comment("#TicketNumber:",PositionTicket,"\n",
                  "#CurrentStopLoss:",CurrentStopLoss,"\n",
-                 "#CurrentTakeProfit:",CurrentTakepProfit);
+                 "#CurrentTakeProfit:",CurrentTakeProfit);
+         
+         trade.PositionModify(PositionTicket,stop_loss,take_profit);
 
-        } // End Symbol If loop
-     }// End For Loop
+        } 
+     }
 
   }
 //+------------------------------------------------------------------+
