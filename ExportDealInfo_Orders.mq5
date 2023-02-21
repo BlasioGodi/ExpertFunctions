@@ -1,8 +1,12 @@
 //+------------------------------------------------------------------+
-//|                                            Request Trade History |
+//|                                        ExportDealInfo_Orders.mq5 |
 //|                                  Copyright 2022, Godfrey Muhinda |
 //|                                      http://tradersliquidity.com |
 //+------------------------------------------------------------------+
+#property copyright "Copyright 2022, Godi Blasio"
+#property link      "https://tradersliquidity.com"
+#property version   "1.00"
+
 #include <Trade\OrderInfo.mqh>
 #include <Trade\DealInfo.mqh>
 #include <Trade\HistoryOrderInfo.mqh>

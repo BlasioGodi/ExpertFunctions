@@ -1,8 +1,12 @@
 //+------------------------------------------------------------------+
-//|                                                      ProjectName |
-//|                                      Copyright 2020, CompanyName |
-//|                                       http://www.companyname.net |
+//|                                                      DealInfo.mq5|
+//|                                      Copyright 2022, Godi Blasio |
+//|                                     https://tradersliquidity.com |
 //+------------------------------------------------------------------+
+#property copyright "Copyright 2022, Godi Blasio"
+#property link      "https://tradersliquidity.com"
+#property version   "1.00"
+
 #include <Trade\OrderInfo.mqh>
 #include <Trade\DealInfo.mqh>
 #include <Trade\HistoryOrderInfo.mqh>
