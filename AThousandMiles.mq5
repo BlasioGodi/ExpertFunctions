@@ -27,13 +27,18 @@ input double Trading_Lvl4 = 0;
 input double Trading_Lvl5 = 0;
 input double Trading_Lvl6 = 0;
 
-input int ZoneDeviation = 0;
+input int ZoneDeviation1 = 0;
+input int ZoneDeviation2 = 0;
+input int ZoneDeviation3 = 0;
+input int ZoneDeviation4 = 0;
+input int ZoneDeviation5 = 0;
+input int ZoneDeviation6 = 0;
 input double LotSize = 0;
-input int StartTime = 15;
-input int EndTime = 19;
+input int StartTime = 0;
+input int EndTime = 23;
 
-input int Min12 = 12;
-input int Min50 = 50;
+input int Min12 = 0;
+input int Min50 = 59;
 
 input int lineWidth = 1;
 input ENUM_LINE_STYLE lineStyle = STYLE_SOLID;
@@ -51,6 +56,7 @@ input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
 extern int count = 0;
 extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6};
+extern vector ZoneDeviation {ZoneDeviation1,ZoneDeviation2,ZoneDeviation3,ZoneDeviation4,ZoneDeviation5,ZoneDeviation6};
 
 //Temporary Code Measure to draw lines using struct
 struct LineName
@@ -79,13 +85,13 @@ int OnInit()
    names.Name6 = "F";
 
 //Create 1st Object Line
-   expert.CreateObjectLine(Trading_Lvl1,ZoneDeviation,lineColor1,lineStyle,lineWidth,names.Name1);
-   expert.CreateObjectLine(Trading_Lvl2,ZoneDeviation,lineColor2,lineStyle,lineWidth,names.Name2);
-   expert.CreateObjectLine(Trading_Lvl3,ZoneDeviation,lineColor3,lineStyle,lineWidth,names.Name3);
-   expert.CreateObjectLine(Trading_Lvl4,ZoneDeviation,lineColor4,lineStyle,lineWidth,names.Name4);
-   expert.CreateObjectLine(Trading_Lvl5,ZoneDeviation,lineColor5,lineStyle,lineWidth,names.Name5);
-   expert.CreateObjectLine(Trading_Lvl6,ZoneDeviation,lineColor6,lineStyle,lineWidth,names.Name6);
-   
+   expert.CreateObjectLine(Trading_Lvl1,ZoneDeviation1,lineColor1,lineStyle,lineWidth,names.Name1);
+   expert.CreateObjectLine(Trading_Lvl2,ZoneDeviation2,lineColor2,lineStyle,lineWidth,names.Name2);
+   expert.CreateObjectLine(Trading_Lvl3,ZoneDeviation3,lineColor3,lineStyle,lineWidth,names.Name3);
+   expert.CreateObjectLine(Trading_Lvl4,ZoneDeviation4,lineColor4,lineStyle,lineWidth,names.Name4);
+   expert.CreateObjectLine(Trading_Lvl5,ZoneDeviation5,lineColor5,lineStyle,lineWidth,names.Name5);
+   expert.CreateObjectLine(Trading_Lvl6,ZoneDeviation6,lineColor6,lineStyle,lineWidth,names.Name6);
+
    return(INIT_SUCCEEDED);
   }
 
@@ -113,7 +119,7 @@ void OnTick()
 // Get the PositionType (Either buy or sell)
    ulong PositionType = PositionGetInteger(POSITION_TYPE);
 
-// Set the timeframe periods  
+// Set the timeframe periods
    ENUM_TIMEFRAMES period_m1 = PERIOD_M1;
    ENUM_TIMEFRAMES period_m5 = PERIOD_M5;
    ENUM_TIMEFRAMES period_m15 = PERIOD_M15;
@@ -138,6 +144,9 @@ void OnTick()
               "#H4-Chart Direction: ", expert.MarketDirection(period_h4),"\n"
               "#D1-Chart Direction: ", expert.MarketDirection(period_d1)
              );
+
+      //Calling ExpertZone Function for all levels
+
       // Check if price is within the trading zone
       if(expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 &&(PositionsTotal()==0)&&(OrdersTotal()==0))
         {
@@ -152,7 +161,7 @@ void OnTick()
      }
 // Activate the PositionPipProfit function
    expert.PositionPipProfit(DesiredProfitinPips);
-   
+
 // Activate the PositionPipLoss function
    expert.PositionPipLoss(pip_loss);
 

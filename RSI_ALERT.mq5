@@ -51,17 +51,26 @@ void OnTick()
 //Get the RSI Value
    double myRSIValue = NormalizeDouble(RSIArray[0],2);
 
+   string time_frame = EnumToString(trade_period);
    if(myRSIValue>top_rsi)
       signal="SELL";
    else
+     {
       if(myRSIValue<bottom_rsi)
+        {
          signal="BUY";
-      else
-         signal="No signal, Wait";
+         Alert(time_frame,": Check Charts");
+        }
 
+      else
+        {
+         signal="No signal, Wait";
+        }
+     }
 //Comment and check
    Comment("MyRSI_Value: ",myRSIValue,"\n",
-           "MySignal: ",signal);
+           "MySignal: ",signal,"\n",
+           "TimeFrame: ", time_frame);
 
   }
 //+------------------------------------------------------------------+

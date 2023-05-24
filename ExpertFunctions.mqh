@@ -62,9 +62,9 @@ public:
    double            Highs(ENUM_TIMEFRAMES);
    double            Lows(ENUM_TIMEFRAMES);
    void              SimplePositionDetails(void);
-   bool              PriceZone(vector&, double, double, ENUM_TIMEFRAMES);
+   bool              PriceZone(vector&,  vector &, double, ENUM_TIMEFRAMES);
    int               ZoneSignal(double, double, int&);
-   int               ExpertZone(vector&, double, int &, ENUM_TIMEFRAMES);
+   int               ExpertZone(vector&, vector &, int &, ENUM_TIMEFRAMES);
    void              PositionPipProfit(int);
    void              PositionPipLoss(int);
    bool              LapsedTimerEntry(int, int);
@@ -717,7 +717,7 @@ void ExpertFunctions::SimplePositionDetails(void)
 //+------------------------------------------------------------------+
 //|                      PRICE ZONE FUNCTION                         |
 //+------------------------------------------------------------------+
-bool ExpertFunctions::PriceZone(vector &PriceLevel,double PointChange, double AskingPrice, ENUM_TIMEFRAMES period)
+bool ExpertFunctions::PriceZone(vector &PriceLevel,vector &PointChange, double AskingPrice, ENUM_TIMEFRAMES period)
   {
 
 // Price entry
@@ -738,8 +738,8 @@ bool ExpertFunctions::PriceZone(vector &PriceLevel,double PointChange, double As
 
    for(int i = 0; i < (int)PriceLevel.Size(); i++)
      {
-      double UpperZone = PriceLevel[i] + PointChange*_Point;
-      double LowerZone = PriceLevel[i] - PointChange*_Point;
+      double UpperZone = PriceLevel[i] + PointChange[i]*_Point;
+      double LowerZone = PriceLevel[i] - PointChange[i]*_Point;
 
       // Check whether the current price falls within your price zones
       if(currentPrice1>openPrice1)
@@ -1144,7 +1144,7 @@ int ExpertFunctions::ZoneSignal(double Level,double PointChange, int &Pips)
 //+------------------------------------------------------------------+
 //|                      EXPERT ZONE FUNCTION                        |
 //+------------------------------------------------------------------+
-int ExpertFunctions::ExpertZone(vector &Level,double PointChange, int &Pips, ENUM_TIMEFRAMES time_period)
+int ExpertFunctions::ExpertZone(vector &Level,vector<double> &PointChange, int &Pips, ENUM_TIMEFRAMES time_period)
   {
 // Get current price array
    MqlRates CurrentPriceArray[];
@@ -1162,8 +1162,8 @@ int ExpertFunctions::ExpertZone(vector &Level,double PointChange, int &Pips, ENU
 
    for(int i = 0; i < (int)Level.Size(); i++)
      {
-      double UpperZone = Level[i] + PointChange*_Point;
-      double LowerZone = Level[i] - PointChange*_Point;
+      double UpperZone = Level[i] + PointChange[i]*_Point;
+      double LowerZone = Level[i] - PointChange[i]*_Point;
 
       // Check whether the current price falls within your price zones
       if(currentPrice1>openPrice1)
