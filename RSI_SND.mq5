@@ -4,7 +4,7 @@
 //|                                     https://tradersliquidity.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2023, Godi Blasio"
-#property link      "https://tradersliquidity.com"
+#property link      "https://xauman.com"
 #property version   "1.00"
 
 //include the file Trade.mqh
