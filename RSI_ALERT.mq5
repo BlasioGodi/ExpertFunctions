@@ -4,7 +4,7 @@
 //|                                     https://tradersliquidity.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2023, Godi Blasio"
-#property link      "https://tradersliquidity.com"
+#property link      "https://xauman.com"
 #property version   "1.00"
 
 //include the file Trade.mqh
@@ -25,6 +25,7 @@ input int lineWidth = 1;
 input ENUM_LINE_STYLE lineStyle = STYLE_SOLID;
 input ENUM_TIMEFRAMES trade_period = PERIOD_H1;
 
+extern int counter = 0;
 
 //+------------------------------------------------------------------+
 //|                    ON-TICK MAIN FUNCTION                         |
@@ -36,41 +37,8 @@ void OnTick()
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
-
-//Variable declaration
-   string signal = "";
-
-//Create array for RSI Values
-   double RSIArray[];
-   int myRSIDefinition=iRSI(_Symbol,_Period,14,PRICE_CLOSE);
-
-//Sort array values and fill the array
-   ArraySetAsSeries(RSIArray,true);
-   CopyBuffer(myRSIDefinition,0,0,3,RSIArray);
-
-//Get the RSI Value
-   double myRSIValue = NormalizeDouble(RSIArray[0],2);
-
-   string time_frame = EnumToString(trade_period);
-   if(myRSIValue>top_rsi)
-      signal="SELL";
-   else
-     {
-      if(myRSIValue<bottom_rsi)
-        {
-         signal="BUY";
-         Alert(time_frame,": Check Charts");
-        }
-
-      else
-        {
-         signal="No signal, Wait";
-        }
-     }
-//Comment and check
-   Comment("MyRSI_Value: ",myRSIValue,"\n",
-           "MySignal: ",signal,"\n",
-           "TimeFrame: ", time_frame);
+// Activate the CheckRSI Function
+   expert.CheckRSIValue(top_rsi,bottom_rsi, counter,trade_period);
 
   }
 //+------------------------------------------------------------------+

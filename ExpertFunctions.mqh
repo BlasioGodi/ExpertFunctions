@@ -76,7 +76,7 @@ public:
    int               EntryTimer(datetime);
    void              FailSafe(void);
    string            TradingCandle(int&);
-   void              CheckRSIValue(void);
+   void              CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
 
 
   };
@@ -1505,14 +1505,14 @@ string ExpertFunctions::TradingCandle(int &pips)
 //+------------------------------------------------------------------+
 //|                     CHECK RSI VALUE FUNCTION                     |
 //+------------------------------------------------------------------+
-void ExpertFunctions::CheckRSIValue()
+void ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rsi_count, ENUM_TIMEFRAMES period_trade)
   {
 //Variable declaration
    string signal = "";
 
 //Create array for RSI Values
    double RSIArray[];
-   int myRSIDefinition=iRSI(_Symbol,_Period,14,PRICE_CLOSE);
+   int myRSIDefinition=iRSI(_Symbol,period_trade,14,PRICE_CLOSE);
 
 //Sort array values and fill the array
    ArraySetAsSeries(RSIArray,true);
@@ -1521,18 +1521,42 @@ void ExpertFunctions::CheckRSIValue()
 //Get the RSI Value
    double myRSIValue = NormalizeDouble(RSIArray[0],2);
 
-   if(myRSIValue>70)
+   string time_frame = EnumToString(period_trade);
+   if(myRSIValue>rsi_top)
+     {
+      if(rsi_count<=1)
+        {
+         Alert(time_frame,": Check Charts");
+         SendNotification("Check Charts RSI H1 is above: "+DoubleToString(rsi_top,2)+" \nTimeframe: "+EnumToString(period_trade));
+        }
       signal="SELL";
+      rsi_count++;
+     }
    else
-      if(myRSIValue<30)
+      if(myRSIValue<rsi_bottom)
+        {
+         if(rsi_count<=1)
+           {
+            Alert(time_frame,": Check Charts");
+            SendNotification("Check Charts RSI H1 is below: "+DoubleToString(rsi_bottom,2)+" \nTimeframe: "+EnumToString(period_trade));
+           }
          signal="BUY";
+         rsi_count++;
+        }
+
       else
+        {
          signal="No signal, Wait";
+         rsi_count=0;
+        }
 
 //Comment and check
    Comment("MyRSI_Value: ",myRSIValue,"\n",
-           "MySignal: ",signal);
-
-
+           "MySignal: ",signal,"\n",
+           "TimeFrame: ", time_frame);
   }
+//+------------------------------------------------------------------+
+
+
+
 //+------------------------------------------------------------------+
