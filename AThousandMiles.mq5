@@ -26,6 +26,11 @@ input double Trading_Lvl3 = 0;
 input double Trading_Lvl4 = 0;
 input double Trading_Lvl5 = 0;
 input double Trading_Lvl6 = 0;
+input double Trading_Lvl7 = 0;
+input double Trading_Lvl8 = 0;
+input double Trading_Lvl9 = 0;
+input double Trading_Lvl10 = 0;
+
 
 input int ZoneDeviation1 = 0;
 input int ZoneDeviation2 = 0;
@@ -33,6 +38,11 @@ input int ZoneDeviation3 = 0;
 input int ZoneDeviation4 = 0;
 input int ZoneDeviation5 = 0;
 input int ZoneDeviation6 = 0;
+input int ZoneDeviation7 = 0;
+input int ZoneDeviation8 = 0;
+input int ZoneDeviation9 = 0;
+input int ZoneDeviation10 = 0;
+
 input double LotSize = 0;
 input int StartTime = 0;
 input int EndTime = 23;
@@ -50,13 +60,16 @@ color lineColor3 = clrMagenta;
 color lineColor4 = clrYellow;
 color lineColor5 = clrBlueViolet;
 color lineColor6 = clrRed;
-
+color lineColor7 = clrGreenYellow;
+color lineColor8 = clrAliceBlue;
+color lineColor9 = clrGreen;
+color lineColor10 = clrAquamarine;
 
 input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
 extern int count = 0;
-extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6};
-extern vector ZoneDeviation {ZoneDeviation1,ZoneDeviation2,ZoneDeviation3,ZoneDeviation4,ZoneDeviation5,ZoneDeviation6};
+extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6,Trading_Lvl7,Trading_Lvl8,Trading_Lvl9,Trading_Lvl10};
+extern vector ZoneDeviation {ZoneDeviation1,ZoneDeviation2,ZoneDeviation3,ZoneDeviation4,ZoneDeviation5,ZoneDeviation6,ZoneDeviation7,ZoneDeviation8,ZoneDeviation9,ZoneDeviation10};
 
 //Temporary Code Measure to draw lines using struct
 struct LineName
@@ -67,6 +80,10 @@ struct LineName
    string            Name4;
    string            Name5;
    string            Name6;
+   string            Name7;
+   string            Name8;
+   string            Name9;
+   string            Name10;
   };
 
 
@@ -83,6 +100,10 @@ int OnInit()
    names.Name4 = "D";
    names.Name5 = "E";
    names.Name6 = "F";
+   names.Name7 = "G";
+   names.Name8 = "H";
+   names.Name9 = "I";
+   names.Name10 = "J";
 
 //Create 1st Object Line
    expert.CreateObjectLine(Trading_Lvl1,ZoneDeviation1,lineColor1,lineStyle,lineWidth,names.Name1);
@@ -91,6 +112,10 @@ int OnInit()
    expert.CreateObjectLine(Trading_Lvl4,ZoneDeviation4,lineColor4,lineStyle,lineWidth,names.Name4);
    expert.CreateObjectLine(Trading_Lvl5,ZoneDeviation5,lineColor5,lineStyle,lineWidth,names.Name5);
    expert.CreateObjectLine(Trading_Lvl6,ZoneDeviation6,lineColor6,lineStyle,lineWidth,names.Name6);
+   expert.CreateObjectLine(Trading_Lvl7,ZoneDeviation7,lineColor7,lineStyle,lineWidth,names.Name7);
+   expert.CreateObjectLine(Trading_Lvl8,ZoneDeviation8,lineColor8,lineStyle,lineWidth,names.Name8);
+   expert.CreateObjectLine(Trading_Lvl9,ZoneDeviation9,lineColor9,lineStyle,lineWidth,names.Name9);
+   expert.CreateObjectLine(Trading_Lvl10,ZoneDeviation10,lineColor10,lineStyle,lineWidth,names.Name10);
 
    return(INIT_SUCCEEDED);
   }
