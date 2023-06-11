@@ -21,6 +21,9 @@ ExpertFunctions expert;
 input double top_rsi = 0;
 input double bottom_rsi = 0;
 
+input int pip_profit = 300;
+input int pip_loss = 300;
+
 input ENUM_LINE_STYLE lineStyle = STYLE_SOLID;
 input ENUM_TIMEFRAMES trade_period = PERIOD_H1;
 
@@ -36,8 +39,23 @@ void OnTick()
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
-// Activate the CheckRSI Function
-   expert.CheckRSIValue(top_rsi,bottom_rsi, counter,trade_period);
+   if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter,trade_period)=="BUY"&&(PositionsTotal()==0)&&(OrdersTotal()==0))
+     {
+      trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
+     }
+
+
+   if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter,trade_period)=="SELL"&&(PositionsTotal()==0)&&(OrdersTotal()==0))
+     {
+      trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
+     }
+
+// Activate the PositionPipProfit function
+   expert.PositionPipProfit(pip_profit);
+
+// Activate the PositionPipLoss function
+   expert.PositionPipLoss(pip_loss);
+
 
   }
 //+------------------------------------------------------------------+
