@@ -68,8 +68,12 @@ color lineColor10 = clrAquamarine;
 input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
 extern int count = 0;
+extern int count2 = 0;
 extern vector Levels {Trading_Lvl1,Trading_Lvl2,Trading_Lvl3,Trading_Lvl4,Trading_Lvl5,Trading_Lvl6,Trading_Lvl7,Trading_Lvl8,Trading_Lvl9,Trading_Lvl10};
 extern vector ZoneDeviation {ZoneDeviation1,ZoneDeviation2,ZoneDeviation3,ZoneDeviation4,ZoneDeviation5,ZoneDeviation6,ZoneDeviation7,ZoneDeviation8,ZoneDeviation9,ZoneDeviation10};
+extern bool conditions_met = false;
+extern bool value_returned = false;
+extern datetime time_current=0;
 
 //Temporary Code Measure to draw lines using struct
 struct LineName
@@ -135,52 +139,75 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
   {
-// Get the ask price
+// Get the Ask and Bid Prices
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
-
-// Get the bid price
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
-
-// Get the PositionType (Either buy or sell)
-   ulong PositionType = PositionGetInteger(POSITION_TYPE);
-
-// Set the timeframe periods
-   ENUM_TIMEFRAMES period_m1 = PERIOD_M1;
-   ENUM_TIMEFRAMES period_m5 = PERIOD_M5;
-   ENUM_TIMEFRAMES period_m15 = PERIOD_M15;
-   ENUM_TIMEFRAMES period_m30 = PERIOD_M30;
-   ENUM_TIMEFRAMES period_h1 = PERIOD_H1;
-   ENUM_TIMEFRAMES period_h4 = PERIOD_H4;
-   ENUM_TIMEFRAMES period_d1 = PERIOD_D1;
-
 
 //+------------------------------------------------------------------ +
 // INSERT THE TRADE SIGNAL TEST CONDITIONS HERE
 
+// Get bar opening price array
+   MqlRates BarPrice[];
+
+// Sort the array data from zero
+   ArraySetAsSeries(BarPrice,true);
+
+// Get data within the array
+   CopyRates(_Symbol,PERIOD_M1,0,3,BarPrice);
+
+// Get the current time in minutes of the current array
+   datetime BarTime = BarPrice[0].time;
+
+// Get the current time struct
+   MqlDateTime CurrentPriceTime;
+
+   TimeToStruct(BarTime,CurrentPriceTime);
+
+   int currentHour = CurrentPriceTime.hour;
+   int currentMin = CurrentPriceTime.min;
+
+   if(expert.ExpertZone(Levels,ZoneDeviation,count2,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count2,trade_period)<=50)
+     {
+      if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
+        {
+         if(!conditions_met)
+           {
+            time_current=TimeCurrent();
+            conditions_met = true;
+            value_returned = true;        
+           }
+        }
+     }
+
+// Get the zone time struct
+   MqlDateTime ZoneTime;
+   TimeToStruct(time_current,ZoneTime);
+
+   int zoneHour = ZoneTime.hour;
+   int zoneMin = ZoneTime.min;
+
+   int hourDifference = currentHour-zoneHour;
+   int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
+   
+   
+   Comment("#Current Time: ",BarTime,
+           "\n#Min Difference: ",minDifference,
+           "\n#Current Hour: ",currentHour,
+           "\n#Current Min: ",currentMin,
+           "\n#Zone Time: ",time_current);
+
 // Execute trades between the 12th min and 50th min
    if(expert.TimeFrame(StartTime,EndTime)=="Perfect Session" && expert.LapsedTimerEntry(Min12,Min50) == true)
      {
-      Comment("#Trade Direction: ", expert.MarketDirection(trade_period),"\n"
-              "#M1-Chart Direction: ", expert.MarketDirection(period_m1),"\n"
-              "#M5-Chart Direction: ", expert.MarketDirection(period_m5),"\n"
-              "#M15-Chart Direction: ", expert.MarketDirection(period_m15),"\n"
-              "#M30-Chart Direction: ", expert.MarketDirection(period_m30),"\n"
-              "#H1-Chart Direction: ", expert.MarketDirection(period_h1),"\n"
-              "#H4-Chart Direction: ", expert.MarketDirection(period_h4),"\n"
-              "#D1-Chart Direction: ", expert.MarketDirection(period_d1)
-             );
-
-      //Calling ExpertZone Function for all levels
-
       // Check if price is within the trading zone
       if(expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count,trade_period)<=50 &&(PositionsTotal()==0)&&(OrdersTotal()==0))
         {
          // Buy trade at Support Level
-         if(Bid<expert.Lows(trade_period)+(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL")
+         if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL" && minDifference>=80 )
             trade.Buy(LotSize,_Symbol,Bid,0,0,NULL);
 
          // Sell trade at Resistance Level
-         if(Ask>expert.Highs(trade_period)-(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "BUY")
+         if(Ask>expert.Highs(trade_period)-(25*_Point) && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "BUY" && minDifference>=80 )
             trade.Sell(LotSize,_Symbol,Ask,0,0,NULL);
         }
      }

@@ -33,6 +33,7 @@ input double trading_lvl1 = 0;
 input double trading_lvl2 = 0;
 input int zone_deviation1 = 0;
 input int zone_deviation2 = 0;
+input int loading_time = 60;
 
 input ENUM_TIMEFRAMES trade_period = PERIOD_H1;
 
@@ -51,9 +52,15 @@ struct LineName
 
 //External Variables
 extern int counter = 0;
+extern int counter2 = 0;
 extern int total_trades = 3;
 extern vector Levels {trading_lvl1,trading_lvl2};
 extern vector ZoneDeviation {zone_deviation1,zone_deviation1};
+extern datetime time_current=0;
+extern bool conditions_met = false;
+extern bool value_returned = false;
+   
+MqlDateTime previousDateTime;  // Global variable to store the previous date and time
 
 //+------------------------------------------------------------------+
 //|               OBJECT LINE INITIALIZATION FUNCTION                |
@@ -87,42 +94,94 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
   {
-  
-  datetime current_time = 0;
-  datetime original_time = TimeLocal();
-
 // Get the Ask and Bid price
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
    
-   expert.ZoneTimer();
+   datetime currentTime = TimeCurrent();
+    MqlDateTime currentDateTime;
+    TimeToStruct(currentTime, currentDateTime);
 
-   
+    // Check if a new day has started
+    if (currentDateTime.day != previousDateTime.day || currentDateTime.mon != previousDateTime.mon || currentDateTime.year != previousDateTime.year)
+    {
+        // Reset the value when a new day starts
+        time_current = 0;
+        conditions_met = false;
+        value_returned = false;
+    }
+
+// Update the previous date and time
+    previousDateTime = currentDateTime;
+
+// Get bar opening price array
+   MqlRates BarPrice[];
+
+// Sort the array data from zero
+   ArraySetAsSeries(BarPrice,true);
+
+// Get data within the array
+   CopyRates(_Symbol,PERIOD_M1,0,3,BarPrice);
+
+// Get the current time in minutes of the current array
+   datetime BarTime = BarPrice[0].time;
+
+// Get the current time struct
+   MqlDateTime CurrentPriceTime;
+
+   TimeToStruct(BarTime,CurrentPriceTime);
+
+   int currentHour = CurrentPriceTime.hour;
+   int currentMin = CurrentPriceTime.min;
+
+
+   if(expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)<=50)
+     {
+      if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
+        {
+         if(!conditions_met)
+           {
+            time_current=TimeCurrent();
+            conditions_met = true;
+            value_returned = true;        
+           }
+        }
+     }
+
+// Get the zone time struct
+   MqlDateTime ZoneTime;
+   TimeToStruct(time_current,ZoneTime);
+
+   int zoneHour = ZoneTime.hour;
+   int zoneMin = ZoneTime.min;
+
+   int hourDifference = currentHour-zoneHour;
+   int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
+
+   Comment("#Current Time: ",BarTime,
+           "\n#Min Difference: ",minDifference,
+           "\n#Current Hour: ",currentHour,
+           "\n#Current Min: ",currentMin,
+           "\n#Zone Time: ",time_current);
+
+   if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
+     {
+      if((PositionsTotal()==0)&&(OrdersTotal()==0))
+        {
+         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true && minDifference>=loading_time)
+           {
+            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
+            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
+            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
+           }
+
+         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="SELL" && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true && minDifference>=loading_time)
+           {
+            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
+            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
+            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit3*_Point,NULL);
+           }
+        }
+     }
   }
 //+------------------------------------------------------------------+
-
-//
-//if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
-//     {
-//      if(expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)<=50 &&(PositionsTotal()==0)&&(OrdersTotal()==0))
-//        {
-//         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter,trade_period)=="BUY" && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
-//           {
-//           current_time=TimeCurrent();
-//           Print("Trade Time: "+TimeToString(current_time));         
-//            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
-//            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
-//            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
-//           }
-//
-//         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter,trade_period)=="SELL" && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
-//           {
-//           current_time=TimeCurrent();
-//           Print("Trade Time: "+TimeToString(current_time));
-//            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
-//            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
-//            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit3*_Point,NULL);
-//           }
-//        }
-//     }
-//     Print("Current Time: "+TimeToString(original_time));
