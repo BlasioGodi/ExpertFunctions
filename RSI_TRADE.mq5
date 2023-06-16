@@ -23,11 +23,14 @@ input double bottom_rsi = 0;
 input int start_time = 0;
 input int end_time = 23;
 
+input double lot_size = 0;
 input int pip_profit1 = 300;
 input int pip_profit2 = 600;
 input int pip_profit3 = 900;
 input int pip_loss = 300;
-input double lot_size = 0;
+input int trailing_stop1 = -300;
+input int trailing_stop2 = 50;
+
 
 input double trading_lvl1 = 0;
 input double trading_lvl2 = 0;
@@ -59,6 +62,8 @@ extern vector ZoneDeviation {zone_deviation1,zone_deviation1};
 extern datetime time_current=0;
 extern bool conditions_met = false;
 extern bool value_returned = false;
+extern bool trade_taken = false;
+extern bool in_progress=false;
 
 MqlDateTime previousDateTime;  // Global variable to store the previous date and time
 
@@ -107,6 +112,7 @@ void OnTick()
      {
       // Reset the value when a new day starts
       time_current = 0;
+      trade_taken = false;
       conditions_met = false;
       value_returned = false;
      }
@@ -135,18 +141,18 @@ void OnTick()
    int currentMin = CurrentPriceTime.min;
 
 
-   if(expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)<=50)
-     {
-      if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
-        {
-         if(!conditions_met)
-           {
-            time_current=TimeCurrent();
-            conditions_met = true;
-            value_returned = true;
-           }
-        }
-     }
+//if(expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)<=50)
+//  {
+//   if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
+//     {
+//      if(!conditions_met)
+//        {
+//         time_current=TimeCurrent();
+//         conditions_met = true;
+//         value_returned = true;
+//        }
+//     }
+//  }
 
 
    if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" || expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="SELL")
@@ -174,7 +180,10 @@ void OnTick()
            "\n#Min Difference: ",minDifference,
            "\n#Current Hour: ",currentHour,
            "\n#Current Min: ",currentMin,
-           "\n#Zone Time: ",time_current);
+           "\n#Zone Time: ",time_current,
+           "\n#Trade Taken today?: ",trade_taken==false?"No":"Yes",
+           "\n#Trade in-progress?: ",in_progress==false?"No":"Yes",
+           "\n#Profit Details: ",expert.GetProfitDetails());
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
      {
@@ -182,20 +191,37 @@ void OnTick()
         {
          if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" && minDifference>=loading_time)
            {
-            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
-            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
-            trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
+            if(!trade_taken)
+              {
+               trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
+               trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
+               trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
+               trade_taken=true;
+               in_progress=true;              
+              }
            }
 
          if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="SELL" && minDifference>=loading_time)
            {
-            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
-            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
-            trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit3*_Point,NULL);
+            if(!trade_taken)
+              {
+               trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
+               trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
+               trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit3*_Point,NULL);
+               trade_taken=true;
+               in_progress=true;
+              }
            }
         }
+     }
+          if(expert.GetProfitDetails()>=30 && expert.GetProfitDetails()<60 ){
+     expert.SellTrailingStop(Ask,trailing_stop1);
+     }
+     
+     if(expert.GetProfitDetails()>=60){
+     expert.SellTrailingStop(Ask,trailing_stop2);
      }
   }
 //+------------------------------------------------------------------+
 
-//&& expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true 
+//&& expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true
