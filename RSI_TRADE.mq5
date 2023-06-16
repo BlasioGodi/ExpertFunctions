@@ -59,7 +59,7 @@ extern vector ZoneDeviation {zone_deviation1,zone_deviation1};
 extern datetime time_current=0;
 extern bool conditions_met = false;
 extern bool value_returned = false;
-   
+
 MqlDateTime previousDateTime;  // Global variable to store the previous date and time
 
 //+------------------------------------------------------------------+
@@ -97,22 +97,22 @@ void OnTick()
 // Get the Ask and Bid price
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
-   
-   datetime currentTime = TimeCurrent();
-    MqlDateTime currentDateTime;
-    TimeToStruct(currentTime, currentDateTime);
 
-    // Check if a new day has started
-    if (currentDateTime.day != previousDateTime.day || currentDateTime.mon != previousDateTime.mon || currentDateTime.year != previousDateTime.year)
-    {
-        // Reset the value when a new day starts
-        time_current = 0;
-        conditions_met = false;
-        value_returned = false;
-    }
+   datetime currentTime = TimeCurrent();
+   MqlDateTime currentDateTime;
+   TimeToStruct(currentTime, currentDateTime);
+
+// Check if a new day has started
+   if(currentDateTime.day != previousDateTime.day || currentDateTime.mon != previousDateTime.mon || currentDateTime.year != previousDateTime.year)
+     {
+      // Reset the value when a new day starts
+      time_current = 0;
+      conditions_met = false;
+      value_returned = false;
+     }
 
 // Update the previous date and time
-    previousDateTime = currentDateTime;
+   previousDateTime = currentDateTime;
 
 // Get bar opening price array
    MqlRates BarPrice[];
@@ -143,10 +143,22 @@ void OnTick()
            {
             time_current=TimeCurrent();
             conditions_met = true;
-            value_returned = true;        
+            value_returned = true;
            }
         }
      }
+
+
+   if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" || expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="SELL")
+     {
+      if(!conditions_met)
+        {
+         time_current=TimeCurrent();
+         conditions_met = true;
+         value_returned = true;
+        }
+     }
+
 
 // Get the zone time struct
    MqlDateTime ZoneTime;
@@ -168,14 +180,14 @@ void OnTick()
      {
       if((PositionsTotal()==0)&&(OrdersTotal()==0))
         {
-         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true && minDifference>=loading_time)
+         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" && minDifference>=loading_time)
            {
             trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
             trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
             trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
            }
 
-         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="SELL" && expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true && minDifference>=loading_time)
+         if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="SELL" && minDifference>=loading_time)
            {
             trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
             trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
@@ -185,3 +197,5 @@ void OnTick()
      }
   }
 //+------------------------------------------------------------------+
+
+//&& expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true 
