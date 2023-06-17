@@ -47,9 +47,10 @@ public:
    //Function Prototype
    string            TradeAlert(void);
    void              TakeProfit(ulong,double);
-   void              BuyTrailingStop(double);
-   void              SellTrailingStop(double);
-   string            GetProfitDetails(void);
+   void              BuyTrailingStop(int);
+   void              SellTrailingStop(int);
+   string            GetStop(double);
+   double            GetProfitDetails(void);
    void              CreateObjectLine(double, int, color, ENUM_LINE_STYLE, int, string);
    void              CheckCloseTime(double);
    void              PendingOrderDelete(void);
@@ -76,7 +77,9 @@ public:
    int               EntryTimer(datetime);
    void              FailSafe(void);
    string            TradingCandle(int&);
-   void              CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
+   string            CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
+   int               ZoneTimer();
+   void              ZonerEntry(vector &, vector &, int &, ENUM_TIMEFRAMES, double &);
 
 
   };
@@ -120,10 +123,13 @@ void ExpertFunctions::TakeProfit(ulong PositionTicket, double DesiredProfit)
 //+------------------------------------------------------------------+
 //|                    BUYTRAILINGSTOPFUNCTION                       |
 //+------------------------------------------------------------------+
-void ExpertFunctions::BuyTrailingStop(double Ask)
+void ExpertFunctions::BuyTrailingStop(int stop_value)
   {
-//Set the desired Stop loss to 200 points
-   double SL=NormalizeDouble(Ask-250*_Point,_Digits);
+  double CurrentStopLoss = 0;
+  double PositionPriceOpen = 0;
+  ulong  PositionTicket = 0;
+  double CurrentTakeProfit = 0;
+  ulong  PositionType = 0;
 
 //Check all open positions for the current symbol
    for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
@@ -132,34 +138,68 @@ void ExpertFunctions::BuyTrailingStop(double Ask)
 
       if(_Symbol==symbol)  //if chart symbol equals position symbol
         {
-         // get the ticket number
-         ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
-
-         // get the current Stop Loss
-         double CurrentStopLoss=PositionGetDouble(POSITION_SL);
-
-         // If current Stop Loss is below 200 points from Ask Price
-         if(CurrentStopLoss<SL)
-           {
-            // Modify the Stop Loss by 20 Points
-            expertTrade.PositionModify(PositionTicket,(CurrentStopLoss+150*_Point),0);
-
-            ////Do this TrailingStop Modification only once.
-            //break;
-           }
+         PositionTicket=PositionGetInteger(POSITION_TICKET);
+         CurrentStopLoss=PositionGetDouble(POSITION_SL);
+         CurrentTakeProfit=PositionGetDouble(POSITION_TP);         
+         PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
+         PositionType = PositionGetInteger(POSITION_TYPE);
+         
+         //Check if the current Position is a BUY
+         if(PositionType == POSITION_TYPE_BUY)
+         expertTrade.PositionModify(PositionTicket,(PositionPriceOpen+stop_value*_Point),CurrentTakeProfit);
+         
         } // End Symbol If loop
      }// End For Loop
 
   }// END OF THE BUYTRAILINGSTOP FUNCTION
 //+------------------------------------------------------------------+
 
+////+------------------------------------------------------------------+
+////|                    BUYTRAILINGSTOPFUNCTION                       |
+////+------------------------------------------------------------------+
+//void ExpertFunctions::BuyTrailingStop(double Ask)
+//  {
+////Set the desired Stop loss to 200 points
+//   double SL=NormalizeDouble(Ask-250*_Point,_Digits);
+//
+////Check all open positions for the current symbol
+//   for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
+//     {
+//      string symbol=PositionGetSymbol(i); //get position symbol
+//
+//      if(_Symbol==symbol)  //if chart symbol equals position symbol
+//        {
+//         // get the ticket number
+//         ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
+//
+//         // get the current Stop Loss
+//         double CurrentStopLoss=PositionGetDouble(POSITION_SL);
+//
+//         // If current Stop Loss is below 200 points from Ask Price
+//         if(CurrentStopLoss<SL)
+//           {
+//            // Modify the Stop Loss by 20 Points
+//            expertTrade.PositionModify(PositionTicket,(CurrentStopLoss+150*_Point),0);
+//
+//            ////Do this TrailingStop Modification only once.
+//            //break;
+//           }
+//        } // End Symbol If loop
+//     }// End For Loop
+//
+//  }// END OF THE BUYTRAILINGSTOP FUNCTION
+////+------------------------------------------------------------------+
+
 //+------------------------------------------------------------------+
 //|                    SELLTRAILINGSTOPFUNCTION                      |
 //+------------------------------------------------------------------+
-void ExpertFunctions::SellTrailingStop(double Bid)
+void ExpertFunctions::SellTrailingStop(int stop_value)
   {
-//Set the desired Stop loss to 200 points
-   double SL=NormalizeDouble(Bid+250*_Point,_Digits);
+  double CurrentStopLoss = 0;
+  double PositionPriceOpen = 0;
+  ulong  PositionTicket = 0;
+  double CurrentTakeProfit = 0;
+  ulong  PositionType = 0;
 
 //Check all open positions for the current symbol
    for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
@@ -168,31 +208,63 @@ void ExpertFunctions::SellTrailingStop(double Bid)
 
       if(_Symbol==symbol)  //if chart symbol equals position symbol
         {
-         // get the ticket number
-         ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
+     
+         PositionTicket=PositionGetInteger(POSITION_TICKET);
+         CurrentStopLoss=PositionGetDouble(POSITION_SL);
+         CurrentTakeProfit=PositionGetDouble(POSITION_TP);
+         PositionType = PositionGetInteger(POSITION_TYPE);
+         
+         PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
 
-         // get the current Stop Loss
-         double CurrentStopLoss=PositionGetDouble(POSITION_SL);
+         if(PositionType==POSITION_TYPE_SELL)
+         expertTrade.PositionModify(PositionTicket,(PositionPriceOpen-stop_value*_Point),CurrentTakeProfit);
 
-         // If current Stop Loss is above 200 points from the Bid Price
-         if(CurrentStopLoss>SL)// This is insufficient
-           {
-            // Modify the Stop Loss by 20 Points
-            expertTrade.PositionModify(PositionTicket,(CurrentStopLoss-150*_Point),0);
-
-            ////Do this TrailingStop Modification only once.
-            //break;
-           }
         } // End Symbol If loop
      }// End For Loop
 
   }// END OF THE SELLTRAILINGSTOP FUNCTION
 //+------------------------------------------------------------------+
 
+////+------------------------------------------------------------------+
+////|                    SELLTRAILINGSTOPFUNCTION                      |
+////+------------------------------------------------------------------+
+//void ExpertFunctions::SellTrailingStop(double Bid)
+//  {
+////Set the desired Stop loss to 200 points
+//   double SL=NormalizeDouble(Bid+250*_Point,_Digits);
+//
+////Check all open positions for the current symbol
+//   for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
+//     {
+//      string symbol=PositionGetSymbol(i); //get position symbol
+//
+//      if(_Symbol==symbol)  //if chart symbol equals position symbol
+//        {
+//         // get the ticket number
+//         ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
+//
+//         // get the current Stop Loss
+//         double CurrentStopLoss=PositionGetDouble(POSITION_SL);
+//
+//         // If current Stop Loss is above 200 points from the Bid Price
+//         if(CurrentStopLoss>SL)
+//           {
+//            // Modify the Stop Loss by 20 Points
+//            expertTrade.PositionModify(PositionTicket,(CurrentStopLoss-150*_Point),0);
+//
+//            ////Do this TrailingStop Modification only once.
+//            //break;
+//           }
+//        } // End Symbol If loop
+//     }// End For Loop
+//
+//  }// END OF THE SELLTRAILINGSTOP FUNCTION
+////+------------------------------------------------------------------+
+
 //+------------------------------------------------------------------+
 //|                GETPROFITDETAILS FUNCTION                         |
 //+------------------------------------------------------------------+
-string ExpertFunctions::GetProfitDetails(void)
+double ExpertFunctions::GetProfitDetails(void)
   {
 
 //declare the variables
@@ -201,7 +273,7 @@ string ExpertFunctions::GetProfitDetails(void)
    long OrderType,DealEntry;
    double OrderProfit;
    string MySymbol = "";
-   string MyResult = "";
+   double MyProfit = 0;
    string OrderProfitValue = "";
 
 //get the history
@@ -237,12 +309,12 @@ string ExpertFunctions::GetProfitDetails(void)
                //if the order was closed
                if(DealEntry==1)
                  {
-                  MyResult = "The Profit was " +OrderProfitValue;
+                  MyProfit = NormalizeDouble(OrderProfit,2);
                  }
               }
         }
      }
-   return MyResult;
+   return MyProfit;
 
   }// END OF THE GETPROFITDETAILS FUNCTION
 //+------------------------------------------------------------------+
@@ -1505,7 +1577,7 @@ string ExpertFunctions::TradingCandle(int &pips)
 //+------------------------------------------------------------------+
 //|                     CHECK RSI VALUE FUNCTION                     |
 //+------------------------------------------------------------------+
-void ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rsi_count, ENUM_TIMEFRAMES period_trade)
+string ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rsi_count, ENUM_TIMEFRAMES period_trade)
   {
 //Variable declaration
    string signal = "";
@@ -1551,12 +1623,12 @@ void ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rsi_
         }
 
 //Comment and check
-   Comment("MyRSI_Value: ",myRSIValue,"\n",
-           "MySignal: ",signal,"\n",
-           "TimeFrame: ", time_frame);
+   //Comment("MyRSI_Value: ",myRSIValue,"\n",
+   //        "MySignal: ",signal,"\n",
+   //        "TimeFrame: ", time_frame);
+
+   return signal;
+
   }
 //+------------------------------------------------------------------+
 
-
-
-//+------------------------------------------------------------------+
