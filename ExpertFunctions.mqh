@@ -44,6 +44,24 @@ public:
                      ExpertFunctions();
                     ~ExpertFunctions();
 
+   // Currency Pairs
+   enum ENUM_FX_PAIRS
+     {
+      EURUSD,
+      GBPUSD,
+      AUDUSD,
+      NZDUSD,
+      USDJPY,
+      USDCHF,
+      USDCAD,
+      XAUUSD,
+      GBPJPY,
+      EURAUD,
+      EURCAD,
+      EURJPY,
+      EURGBP
+     };
+
    //Function Prototype
    string            TradeAlert(void);
    void              TakeProfit(ulong,double);
@@ -78,9 +96,7 @@ public:
    void              FailSafe(void);
    string            TradingCandle(int&);
    string            CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
-   int               ZoneTimer();
-   void              ZonerEntry(vector &, vector &, int &, ENUM_TIMEFRAMES, double &);
-
+   bool            CheckOpenPositions(string);
 
   };
 //+------------------------------------------------------------------+
@@ -125,11 +141,11 @@ void ExpertFunctions::TakeProfit(ulong PositionTicket, double DesiredProfit)
 //+------------------------------------------------------------------+
 void ExpertFunctions::BuyTrailingStop(int stop_value)
   {
-  double CurrentStopLoss = 0;
-  double PositionPriceOpen = 0;
-  ulong  PositionTicket = 0;
-  double CurrentTakeProfit = 0;
-  ulong  PositionType = 0;
+   double CurrentStopLoss = 0;
+   double PositionPriceOpen = 0;
+   ulong  PositionTicket = 0;
+   double CurrentTakeProfit = 0;
+   ulong  PositionType = 0;
 
 //Check all open positions for the current symbol
    for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
@@ -140,14 +156,14 @@ void ExpertFunctions::BuyTrailingStop(int stop_value)
         {
          PositionTicket=PositionGetInteger(POSITION_TICKET);
          CurrentStopLoss=PositionGetDouble(POSITION_SL);
-         CurrentTakeProfit=PositionGetDouble(POSITION_TP);         
+         CurrentTakeProfit=PositionGetDouble(POSITION_TP);
          PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
          PositionType = PositionGetInteger(POSITION_TYPE);
-         
+
          //Check if the current Position is a BUY
          if(PositionType == POSITION_TYPE_BUY)
-         expertTrade.PositionModify(PositionTicket,(PositionPriceOpen+stop_value*_Point),CurrentTakeProfit);
-         
+            expertTrade.PositionModify(PositionTicket,(PositionPriceOpen+stop_value*_Point),CurrentTakeProfit);
+
         } // End Symbol If loop
      }// End For Loop
 
@@ -195,11 +211,11 @@ void ExpertFunctions::BuyTrailingStop(int stop_value)
 //+------------------------------------------------------------------+
 void ExpertFunctions::SellTrailingStop(int stop_value)
   {
-  double CurrentStopLoss = 0;
-  double PositionPriceOpen = 0;
-  ulong  PositionTicket = 0;
-  double CurrentTakeProfit = 0;
-  ulong  PositionType = 0;
+   double CurrentStopLoss = 0;
+   double PositionPriceOpen = 0;
+   ulong  PositionTicket = 0;
+   double CurrentTakeProfit = 0;
+   ulong  PositionType = 0;
 
 //Check all open positions for the current symbol
    for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
@@ -208,16 +224,16 @@ void ExpertFunctions::SellTrailingStop(int stop_value)
 
       if(_Symbol==symbol)  //if chart symbol equals position symbol
         {
-     
+
          PositionTicket=PositionGetInteger(POSITION_TICKET);
          CurrentStopLoss=PositionGetDouble(POSITION_SL);
          CurrentTakeProfit=PositionGetDouble(POSITION_TP);
          PositionType = PositionGetInteger(POSITION_TYPE);
-         
+
          PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
 
          if(PositionType==POSITION_TYPE_SELL)
-         expertTrade.PositionModify(PositionTicket,(PositionPriceOpen-stop_value*_Point),CurrentTakeProfit);
+            expertTrade.PositionModify(PositionTicket,(PositionPriceOpen-stop_value*_Point),CurrentTakeProfit);
 
         } // End Symbol If loop
      }// End For Loop
@@ -371,15 +387,7 @@ void ExpertFunctions::PendingOrderDelete(void)
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
-//|                    CHECKCLOSETIME FUNCTION                       |
-//+------------------------------------------------------------------+
-
-//Check if 15mins has lapsed since the last order was executed
-//and then execute the cancel order option if PositionsTotal()==0
-//i.e. no positions have been opened.
-
-//+------------------------------------------------------------------+
-//|                                                                  |
+//|               CHECK CLOSE TIME FUNCTION                          |
 //+------------------------------------------------------------------+
 void ExpertFunctions::CheckCloseTime(double TimePassed)
   {
@@ -736,7 +744,7 @@ string ExpertFunctions::TradeAlert(void)
 //+------------------------------------------------------------------+
 void ExpertFunctions::SimplePositionDetails(void)
   {
-// if positions for the curreny pair exist
+// if positions for the currency pair exist
    if(PositionSelect(_Symbol)==true)
      {
       // From the number of positions count down to zero and go through all Open Positions.
@@ -835,12 +843,10 @@ bool ExpertFunctions::PriceZone(vector &PriceLevel,vector &PointChange, double A
 
    if(priceEntry == "IN")
      {
-      //Comment("Within range");
       return (true);
      }
    else
      {
-      //Comment("Not Within range");
       return (false);
      }
 
@@ -1623,12 +1629,39 @@ string ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rs
         }
 
 //Comment and check
-   //Comment("MyRSI_Value: ",myRSIValue,"\n",
-   //        "MySignal: ",signal,"\n",
-   //        "TimeFrame: ", time_frame);
+//Comment("MyRSI_Value: ",myRSIValue,"\n",
+//        "MySignal: ",signal,"\n",
+//        "TimeFrame: ", time_frame);
 
    return signal;
 
+  }
+//+------------------------------------------------------------------+
+
+
+//+------------------------------------------------------------------+
+//|                   CHECk-OPEN POSITIONS FUNCTION                  |
+//+------------------------------------------------------------------+
+bool ExpertFunctions::CheckOpenPositions(string currencyPair)
+  {
+
+// Check if there are no open positions for the currency pair
+   bool noOpenPositions = true;
+   for(int i=PositionsTotal()-1; i>=0; i--)
+     {
+      // Get the position at index i
+      if(PositionSelectByTicket(i))
+        {
+         // Check if the position matches the currency pair
+         if(PositionGetSymbol(i) == currencyPair)
+           {
+            noOpenPositions = false;
+            break;
+           }
+        }
+     }
+
+   return noOpenPositions;
   }
 //+------------------------------------------------------------------+
 

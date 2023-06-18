@@ -17,7 +17,26 @@ CTrade trade;
 //Create an instance of ExpertFunctions
 ExpertFunctions expert;
 
+// Currency Pairs
+   enum ENUM_FX_PAIRS
+     {
+      EURUSD,
+      GBPUSD,
+      AUDUSD,
+      NZDUSD,
+      USDJPY,
+      USDCHF,
+      USDCAD,
+      XAUUSD,
+      GBPJPY,
+      EURAUD,
+      EURCAD,
+      EURJPY,
+      EURGBP
+     };
+     
 //User input variables
+input ENUM_FX_PAIRS currencySymbol= XAUUSD;
 input double top_rsi = 0;
 input double bottom_rsi = 0;
 input int start_time = 0;
@@ -30,7 +49,6 @@ input int pip_profit3 = 900;
 input int pip_loss = 300;
 input int trailing_stop1 = -300;
 input int trailing_stop2 = 50;
-
 
 input double trading_lvl1 = 0;
 input double trading_lvl2 = 0;
@@ -164,6 +182,8 @@ void OnTick()
 
    int hourDifference = currentHour-zoneHour;
    int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
+   
+   string currencyDetails = EnumToString(currencySymbol);
 
    Comment("#Current Time: ",BarTime,
            "\n#Min Difference: ",minDifference,
@@ -176,7 +196,7 @@ void OnTick()
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
      {
-      if((PositionsTotal()==0)&&(OrdersTotal()==0))
+      if(expert.CheckOpenPositions(currencyDetails)==true)
         {
          if(expert.CheckRSIValue(top_rsi,bottom_rsi, counter2,trade_period)=="BUY" && minDifference>=loading_time)
            {
