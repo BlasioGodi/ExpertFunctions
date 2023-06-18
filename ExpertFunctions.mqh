@@ -44,24 +44,6 @@ public:
                      ExpertFunctions();
                     ~ExpertFunctions();
 
-   // Currency Pairs
-   enum ENUM_FX_PAIRS
-     {
-      EURUSD,
-      GBPUSD,
-      AUDUSD,
-      NZDUSD,
-      USDJPY,
-      USDCHF,
-      USDCAD,
-      XAUUSD,
-      GBPJPY,
-      EURAUD,
-      EURCAD,
-      EURJPY,
-      EURGBP
-     };
-
    //Function Prototype
    string            TradeAlert(void);
    void              TakeProfit(ulong,double);
