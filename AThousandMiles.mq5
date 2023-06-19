@@ -173,14 +173,19 @@ void OnTick()
    MqlDateTime currentDateTime;
    TimeToStruct(currentTime, currentDateTime);
 
+   string currencyDetails = EnumToString(currencySymbol);
+
 // Check if a new day has started and reset all values
    if(currentDateTime.day != previousDateTime.day || currentDateTime.mon != previousDateTime.mon || currentDateTime.year != previousDateTime.year)
      {
-      time_current = 0;
-      trade_taken = false;
-      conditions_met = false;
-      value_returned = false;
-      get_profit = 0;
+      if(expert.CheckOpenPositions(currencyDetails)==true)
+        {
+         time_current = 0;
+         trade_taken = false;
+         conditions_met = false;
+         value_returned = false;
+         get_profit = 0;
+        }
      }
 
 // Update the previous date and time
@@ -232,8 +237,6 @@ void OnTick()
    int hourDifference = currentHour-zoneHour;
    int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
 
-   string currencyDetails = EnumToString(currencySymbol);
-
    Comment("#Current Time: ",BarTime,
            "\n#Min Difference: ",minDifference,
            "\n#Current Hour: ",currentHour,
@@ -242,7 +245,7 @@ void OnTick()
            "\n#Trade Taken today?: ",trade_taken==false?"No":"Yes",
            "\n#Trade in-progress?: ",in_progress==false?"No":"Yes",
            "\n#Profit Details: ",get_profit,
-           "\n#Market Direction: ",expert.MarketDirection(trade_period));
+           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No Open Positions":"Positions are Open");
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
      {

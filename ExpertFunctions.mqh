@@ -78,7 +78,7 @@ public:
    void              FailSafe(void);
    string            TradingCandle(int&);
    string            CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
-   bool            CheckOpenPositions(string);
+   string            CheckOpenPositions(string);
 
   };
 //+------------------------------------------------------------------+
@@ -1620,12 +1620,12 @@ string ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rs
   }
 //+------------------------------------------------------------------+
 
-
 //+------------------------------------------------------------------+
-//|                   CHECk-OPEN POSITIONS FUNCTION                  |
+//|                   CHECK-OPEN POSITIONS FUNCTION                  |
 //+------------------------------------------------------------------+
-bool ExpertFunctions::CheckOpenPositions(string currencyPair)
+string ExpertFunctions::CheckOpenPositions(string currencyPair)
   {
+  string positionDetails = "";
 
 // Check if there are no open positions for the currency pair
    bool noOpenPositions = true;
@@ -1638,12 +1638,13 @@ bool ExpertFunctions::CheckOpenPositions(string currencyPair)
          if(PositionGetSymbol(i) == currencyPair)
            {
             noOpenPositions = false;
+            positionDetails = PositionGetSymbol(i);
             break;
            }
         }
      }
 
-   return noOpenPositions;
+   return positionDetails;
   }
 //+------------------------------------------------------------------+
 
