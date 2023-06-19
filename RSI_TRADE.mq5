@@ -191,15 +191,16 @@ void OnTick()
    int hourDifference = currentHour-zoneHour;
    int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
 
-   Comment("#Expert Advisor: RSI_AlgoExpert",
-           "\n#Current Time: ",BarTime,
+      Comment("#Current Time: ",BarTime,
            "\n#Min Difference: ",minDifference,
            "\n#Current Hour: ",currentHour,
            "\n#Current Min: ",currentMin,
            "\n#Zone Time: ",time_current,
            "\n#Trade Taken today?: ",trade_taken==false?"No":"Yes",
            "\n#Trade in-progress?: ",in_progress==false?"No":"Yes",
-           "\n#Profit Details: ",get_profit);
+           "\n#Profit Details: ",get_profit,
+           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open positions":"Positions are Open"
+          );
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
      {

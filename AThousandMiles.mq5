@@ -260,7 +260,7 @@ void OnTick()
            "\n#Trade in-progress?: ",in_progress==false?"No":"Yes",
            "\n#Profit Details: ",get_profit,
            "\n#Trade Direction: ",trade_direction,
-           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open Positions":"Positions are Open"
+           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open positions":"Positions are Open"
           );
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
