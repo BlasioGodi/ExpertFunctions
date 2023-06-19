@@ -78,7 +78,7 @@ public:
    void              FailSafe(void);
    string            TradingCandle(int&);
    string            CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
-   string            CheckOpenPositions(string);
+   bool              CheckOpenPositions(string);
 
   };
 //+------------------------------------------------------------------+
@@ -1623,28 +1623,43 @@ string ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rs
 //+------------------------------------------------------------------+
 //|                   CHECK-OPEN POSITIONS FUNCTION                  |
 //+------------------------------------------------------------------+
-string ExpertFunctions::CheckOpenPositions(string currencyPair)
+bool ExpertFunctions::CheckOpenPositions(string currencyPair)
   {
-  string positionDetails = "";
-
-// Check if there are no open positions for the currency pair
    bool noOpenPositions = true;
-   for(int i=PositionsTotal()-1; i>=0; i--)
+   if(PositionSelect(_Symbol)==true)
      {
-      // Get the position at index i
-      if(PositionSelectByTicket(i))
+      // From the number of positions count down to zero and go through all Open Positions.
+      for(int i=PositionsTotal()-1; i>=0; i--)
         {
-         // Check if the position matches the currency pair
-         if(PositionGetSymbol(i) == currencyPair)
+         //Get the Ticket Number
+         ulong PositionTicket = PositionGetInteger(POSITION_TICKET);
+
+         //Calculate the currency pair
+         string PositionSymbol = PositionGetString(POSITION_SYMBOL);
+
+         string str = PositionSymbol;
+         string separator = ".";
+         string desiredString = currencyPair;
+
+         // Find the position of the separator
+         int separatorPos = StringFind(str, separator);
+
+         if(separatorPos >= 0)
            {
-            noOpenPositions = false;
-            positionDetails = PositionGetSymbol(i);
-            break;
+            // Extract the substring before the separator
+            string extractedString = StringSubstr(str, 0, separatorPos);
+
+            // Compare the extracted substring with the desired string
+            if(extractedString == desiredString)
+              {
+               noOpenPositions = false;
+               break;
+              }
            }
         }
      }
-
-   return positionDetails;
+   return noOpenPositions;
   }
 //+------------------------------------------------------------------+
 
+//+------------------------------------------------------------------+
