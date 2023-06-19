@@ -98,6 +98,7 @@ extern datetime time_current=0;
 extern bool trade_taken = false;
 extern bool in_progress=false;
 extern double get_profit=0;
+extern string trade_direction = "";
 
 MqlDateTime previousDateTime;  // Global variable to store the previous date and time
 
@@ -183,6 +184,7 @@ void OnTick()
          conditions_met = false;
          value_returned = false;
          get_profit = 0;
+         trade_direction = "";
      }
 
 // Update the previous date and time
@@ -210,13 +212,23 @@ void OnTick()
 
    if(expert.ExpertZone(Levels,ZoneDeviation,count2,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,count2,trade_period)<=50)
      {
-      if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
+      if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "BUY")
         {
          if(!conditions_met)
            {
             time_current=TimeCurrent();
             conditions_met = true;
-            value_returned = true;
+            trade_direction = "BUY";
+           }
+        }
+        
+        if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL")
+        {
+         if(!conditions_met)
+           {
+            time_current=TimeCurrent();
+            conditions_met = true;
+            trade_direction = "SELL";
            }
         }
      }
@@ -242,7 +254,9 @@ void OnTick()
            "\n#Trade Taken today?: ",trade_taken==false?"No":"Yes",
            "\n#Trade in-progress?: ",in_progress==false?"No":"Yes",
            "\n#Profit Details: ",get_profit,
-           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open Positions":"Positions are Open");
+           "\n#Trade Direction: ",trade_direction,
+           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open Positions":"Positions are Open"
+           );
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
      {
@@ -250,7 +264,7 @@ void OnTick()
       if(expert.CheckOpenPositions(currencyDetails)==true)
         {
          // Buy at Support
-         if(value_returned==true && expert.MarketDirection(trade_period) == "SELL" && minDifference>=loading_time)
+         if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && trade_direction=="SELL" && minDifference>=loading_time)
            {
             if(!trade_taken)
               {
@@ -263,7 +277,7 @@ void OnTick()
            }
 
          // Sell at Resistance
-         if(value_returned==true && expert.MarketDirection(trade_period) == "BUY" && minDifference>=loading_time)
+         if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && trade_direction=="BUY" && minDifference>=loading_time)
            {
             if(!trade_taken)
               {

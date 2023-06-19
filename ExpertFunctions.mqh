@@ -1661,5 +1661,3 @@ bool ExpertFunctions::CheckOpenPositions(string currencyPair)
    return noOpenPositions;
   }
 //+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
