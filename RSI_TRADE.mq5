@@ -185,7 +185,8 @@ void OnTick()
    
    string currencyDetails = EnumToString(currencySymbol);
 
-   Comment("#Current Time: ",BarTime,
+   Comment("#Expert Advisor: RSI_AlgoExpert",
+   "#Current Time: ",BarTime,
            "\n#Min Difference: ",minDifference,
            "\n#Current Hour: ",currentHour,
            "\n#Current Min: ",currentMin,
