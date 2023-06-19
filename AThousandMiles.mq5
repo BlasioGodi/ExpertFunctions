@@ -88,17 +88,17 @@ color line_color10 = clrAquamarine;
 
 input ENUM_TIMEFRAMES trade_period = PERIOD_M1;
 
-extern int count = 0;
-extern int count2 = 0;
-extern vector Levels {price_lvl1,price_lvl2,price_lvl3,price_lvl4,price_lvl5,price_lvl6,price_lvl7,price_lvl8,price_lvl9,price_lvl10};
-extern vector ZoneDeviation {zone_dev1,zone_dev2,zone_dev3,zone_dev4,zone_dev5,zone_dev6,zone_dev7,zone_dev8,zone_dev9,zone_dev10};
-extern bool conditions_met = false;
-extern bool value_returned = false;
-extern datetime time_current=0;
-extern bool trade_taken = false;
-extern bool in_progress=false;
-extern double get_profit=0;
-extern string trade_direction = "";
+int count = 0;
+int count2 = 0;
+vector Levels {price_lvl1,price_lvl2,price_lvl3,price_lvl4,price_lvl5,price_lvl6,price_lvl7,price_lvl8,price_lvl9,price_lvl10};
+vector ZoneDeviation {zone_dev1,zone_dev2,zone_dev3,zone_dev4,zone_dev5,zone_dev6,zone_dev7,zone_dev8,zone_dev9,zone_dev10};
+bool conditions_met = false;
+bool value_returned = false;
+datetime time_current=0;
+bool trade_taken = false;
+bool in_progress=false;
+double get_profit=0;
+string trade_direction = "";
 
 MqlDateTime previousDateTime;  // Global variable to store the previous date and time
 

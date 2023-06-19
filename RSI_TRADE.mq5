@@ -72,17 +72,17 @@ struct LineName
   };
 
 //External Variables
-extern int counter = 0;
-extern int counter2 = 0;
-extern int total_trades = 3;
-extern vector Levels {trading_lvl1,trading_lvl2};
-extern vector ZoneDeviation {zone_deviation1,zone_deviation1};
-extern datetime time_current=0;
-extern bool conditions_met = false;
-extern bool value_returned = false;
-extern bool trade_taken = false;
-extern bool in_progress=false;
-extern double get_profit=0;
+int counter = 0;
+int counter2 = 0;
+int total_trades = 3;
+vector Levels {trading_lvl1,trading_lvl2};
+vector ZoneDeviation {zone_deviation1,zone_deviation1};
+datetime time_current=0;
+bool conditions_met = false;
+bool value_returned = false;
+bool trade_taken = false;
+bool in_progress=false;
+double get_profit=0;
 
 MqlDateTime previousDateTime;  // Global variable to store the previous date and time
 
@@ -191,7 +191,7 @@ void OnTick()
    int hourDifference = currentHour-zoneHour;
    int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
 
-      Comment("#Current Time: ",BarTime,
+   Comment("#Current Time: ",BarTime,
            "\n#Min Difference: ",minDifference,
            "\n#Current Hour: ",currentHour,
            "\n#Current Min: ",currentMin,
