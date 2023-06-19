@@ -1625,6 +1625,7 @@ string ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rs
 //+------------------------------------------------------------------+
 bool ExpertFunctions::CheckOpenPositions(string currencyPair)
   {
+   string extractedString = "";
    bool noOpenPositions = true;
    if(PositionSelect(_Symbol)==true)
      {
@@ -1647,7 +1648,7 @@ bool ExpertFunctions::CheckOpenPositions(string currencyPair)
          if(separatorPos >= 0)
            {
             // Extract the substring before the separator
-            string extractedString = StringSubstr(str, 0, separatorPos);
+            extractedString = StringSubstr(str, 0, separatorPos);
 
             // Compare the extracted substring with the desired string
             if(extractedString == desiredString)
@@ -1656,6 +1657,12 @@ bool ExpertFunctions::CheckOpenPositions(string currencyPair)
                break;
               }
            }
+         else
+            if(PositionSymbol == currencyPair)
+              {
+               noOpenPositions = false;
+               break;
+              }
         }
      }
    return noOpenPositions;
