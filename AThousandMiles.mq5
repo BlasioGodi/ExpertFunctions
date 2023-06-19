@@ -179,12 +179,12 @@ void OnTick()
 // Check if a new day has started and reset all values
    if(currentDateTime.day != previousDateTime.day || currentDateTime.mon != previousDateTime.mon || currentDateTime.year != previousDateTime.year)
      {
-         time_current = 0;
-         trade_taken = false;
-         conditions_met = false;
-         value_returned = false;
-         get_profit = 0;
-         trade_direction = "";
+      time_current = 0;
+      trade_taken = false;
+      conditions_met = false;
+      value_returned = false;
+      get_profit = 0;
+      trade_direction = "";
      }
 
 // Update the previous date and time
@@ -221,8 +221,8 @@ void OnTick()
             trade_direction = "BUY";
            }
         }
-        
-        if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL")
+
+      if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && expert.MarketDirection(trade_period) == "SELL")
         {
          if(!conditions_met)
            {
@@ -232,9 +232,14 @@ void OnTick()
            }
         }
      }
-
-// Get trade profit
-   get_profit=expert.GetProfitDetails();
+   if(expert.CheckOpenPositions(currencyDetails)==true)
+     {
+      get_profit=0;
+     }
+   else
+     {
+      get_profit=expert.GetProfitDetails();
+     }
 
 // Get the zone time struct
    MqlDateTime ZoneTime;
@@ -256,7 +261,7 @@ void OnTick()
            "\n#Profit Details: ",get_profit,
            "\n#Trade Direction: ",trade_direction,
            "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open Positions":"Positions are Open"
-           );
+          );
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
      {
@@ -303,6 +308,5 @@ void OnTick()
       expert.SellTrailingStop(trailing_stop2);
       expert.BuyTrailingStop(trailing_stop2);
      }
-
   }// END OF THE ON-TICK MAIN FUNCTION
 //+------------------------------------------------------------------+
