@@ -18,23 +18,23 @@ CTrade trade;
 ExpertFunctions expert;
 
 // Currency Pairs
-   enum ENUM_FX_PAIRS
-     {
-      EURUSD,
-      GBPUSD,
-      AUDUSD,
-      NZDUSD,
-      USDJPY,
-      USDCHF,
-      USDCAD,
-      XAUUSD,
-      GBPJPY,
-      EURAUD,
-      EURCAD,
-      EURJPY,
-      EURGBP
-     };
-     
+enum ENUM_FX_PAIRS
+  {
+   EURUSD,
+   GBPUSD,
+   AUDUSD,
+   NZDUSD,
+   USDJPY,
+   USDCHF,
+   USDCAD,
+   XAUUSD,
+   GBPJPY,
+   EURAUD,
+   EURCAD,
+   EURJPY,
+   EURGBP
+  };
+
 //User input variables
 input ENUM_FX_PAIRS currencySymbol= XAUUSD;
 input double top_rsi = 0;
@@ -122,6 +122,8 @@ void OnTick()
    double Ask=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
    double Bid=NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
 
+   string currencyDetails = EnumToString(currencySymbol);
+
    datetime currentTime = TimeCurrent();
    MqlDateTime currentDateTime;
    TimeToStruct(currentTime, currentDateTime);
@@ -170,8 +172,14 @@ void OnTick()
         }
      }
 
-// Get trade profit
-   get_profit=expert.GetProfitDetails();
+   if(expert.CheckOpenPositions(currencyDetails)==true)
+     {
+      get_profit=0;
+     }
+   else
+     {
+      get_profit=expert.GetProfitDetails();
+     }
 
 // Get the zone time struct
    MqlDateTime ZoneTime;
@@ -182,11 +190,9 @@ void OnTick()
 
    int hourDifference = currentHour-zoneHour;
    int minDifference = (currentMin+(hourDifference*60)) - zoneMin;
-   
-   string currencyDetails = EnumToString(currencySymbol);
 
    Comment("#Expert Advisor: RSI_AlgoExpert",
-   "\n#Current Time: ",BarTime,
+           "\n#Current Time: ",BarTime,
            "\n#Min Difference: ",minDifference,
            "\n#Current Hour: ",currentHour,
            "\n#Current Min: ",currentMin,
@@ -236,23 +242,4 @@ void OnTick()
       expert.BuyTrailingStop(trailing_stop2);
      }
   }
-//+------------------------------------------------------------------+
-
-
-//&& expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true && value_returned==true
-
-//if(expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)>=1 && expert.ExpertZone(Levels,ZoneDeviation,counter,trade_period)<=50)
-//  {
-//   if(expert.PriceZone(Levels,ZoneDeviation,Ask,trade_period)==true)
-//     {
-//      if(!conditions_met)
-//        {
-//         time_current=TimeCurrent();
-//         conditions_met = true;
-//         value_returned = true;
-//        }
-//     }
-//  }
-
-
 //+------------------------------------------------------------------+
