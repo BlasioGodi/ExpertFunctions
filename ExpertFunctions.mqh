@@ -79,6 +79,7 @@ public:
    string            TradingCandle(int&);
    string            CheckRSIValue(double, double, int &rsi_count, ENUM_TIMEFRAMES);
    bool              CheckOpenPositions(string);
+   int               GetPipProfit();
 
   };
 //+------------------------------------------------------------------+
@@ -908,6 +909,70 @@ void ExpertFunctions::PositionPipProfit(int DesiredPipProfit)
   }//END OF THE POSITIONPIPPROFIT FUNCTION
 //+------------------------------------------------------------------+
 
+//+------------------------------------------------------------------+
+//|                     GETPIPPROFIT FUNCTION                        |
+//+------------------------------------------------------------------+
+int ExpertFunctions::GetPipProfit()
+  {
+//Variable declaration
+   int pointsProfit = 0;
+   double price_diff = 0;
+
+//Check all open positions for the current symbol
+   for(int i=PositionsTotal()-1; i>=0; i--) // count all currency pair positions
+     {
+      //Get the history
+      HistorySelect(0,TimeCurrent());
+
+      string symbol=PositionGetSymbol(i); //get position symbol
+
+      if(_Symbol==symbol)  //if chart symbol equals position symbol
+        {
+         // Get the ticket number for the open position
+         ulong PositionTicket=PositionGetInteger(POSITION_TICKET);
+
+         // Get the position type
+         ulong PositionType = PositionGetInteger(POSITION_TYPE);
+
+         // Get the position profit for the current position
+         double PositionProfit = PositionGetDouble(POSITION_PROFIT);
+
+         //Calculate the open price for the position
+         double PositionPriceOpen = PositionGetDouble(POSITION_PRICE_OPEN);
+
+         // Get the price difference
+         price_diff=MathAbs(posInfo.PriceCurrent()-PositionPriceOpen);
+
+         //Check if the current Position is a BUY
+         if(PositionType == POSITION_TYPE_BUY)
+           {
+            // Check if the current price is greater than the deal price
+            if(posInfo.PriceCurrent()>PositionPriceOpen)
+              {
+               // Get the current profit in points
+               pointsProfit=(int)(price_diff/Point());
+
+              }
+           }
+         //Check if the current Position is a sell
+         if(PositionType == POSITION_TYPE_SELL)
+           {
+            // Check if the current price is lower than the deal price
+            if(posInfo.PriceCurrent()<PositionPriceOpen)
+              {
+               // Get the current profit in points
+               pointsProfit=(int)(price_diff/Point());
+              }
+           }
+
+        } // End Symbol If loop
+     }// End For Loop
+
+   return pointsProfit;
+
+  }//END OF THE GETPIPPROFIT FUNCTION
+//+------------------------------------------------------------------+
+
 
 //+------------------------------------------------------------------+
 //|                   POSITIONPIPLOSS FUNCTION                       |
@@ -1609,11 +1674,6 @@ string ExpertFunctions::CheckRSIValue(double rsi_top, double rsi_bottom, int &rs
          signal="No signal, Wait";
          rsi_count=0;
         }
-
-//Comment and check
-//Comment("MyRSI_Value: ",myRSIValue,"\n",
-//        "MySignal: ",signal,"\n",
-//        "TimeFrame: ", time_frame);
 
    return signal;
 

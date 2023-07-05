@@ -29,6 +29,7 @@ enum ENUM_FX_PAIRS
    USDCAD,
    XAUUSD,
    GBPJPY,
+   GBPCAD,
    EURAUD,
    EURCAD,
    EURJPY,
@@ -97,6 +98,8 @@ bool value_returned = false;
 datetime time_current=0;
 bool trade_taken = false;
 bool in_progress=false;
+bool firstStop_moved = false;
+bool secondStop_moved = false;
 double get_profit=0;
 string trade_direction = "";
 
@@ -183,6 +186,8 @@ void OnTick()
       trade_taken = false;
       conditions_met = false;
       value_returned = false;
+      firstStop_moved = false;
+      secondStop_moved = false;
       get_profit = 0;
       trade_direction = "";
      }
@@ -238,7 +243,7 @@ void OnTick()
      }
    else
      {
-      get_profit=expert.GetProfitDetails();
+      get_profit=expert.GetPipProfit();
      }
 
 // Get the zone time struct
@@ -260,7 +265,7 @@ void OnTick()
            "\n#Trade in-progress?: ",in_progress==false?"No":"Yes",
            "\n#Profit Details: ",get_profit,
            "\n#Trade Direction: ",trade_direction,
-           "\n#Market Direction: ",expert.CheckOpenPositions(currencyDetails)==true?"No open positions":"Positions are Open"
+           "\n#Trades Open? ",expert.CheckOpenPositions(currencyDetails)==true?"No open positions":"Positions are Open"
           );
 
    if(expert.TimeFrame(start_time,end_time)=="Perfect Session")
@@ -273,9 +278,9 @@ void OnTick()
            {
             if(!trade_taken)
               {
-               trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
-               trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
-               trade.Buy(lot_size,_Symbol,Bid,Bid-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
+               trade.Buy(lot_size,_Symbol,Ask,Ask-pip_loss*_Point,Ask+pip_profit1*_Point,NULL);
+               trade.Buy(lot_size,_Symbol,Ask,Ask-pip_loss*_Point,Ask+pip_profit2*_Point,NULL);
+               trade.Buy(lot_size,_Symbol,Ask,Ask-pip_loss*_Point,Ask+pip_profit3*_Point,NULL);
                trade_taken=true;
                in_progress=true;
               }
@@ -286,9 +291,9 @@ void OnTick()
            {
             if(!trade_taken)
               {
-               trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
-               trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
-               trade.Sell(lot_size,_Symbol,Ask,Ask+pip_loss*_Point,Bid-pip_profit3*_Point,NULL);
+               trade.Sell(lot_size,_Symbol,Bid,Bid+pip_loss*_Point,Bid-pip_profit1*_Point,NULL);
+               trade.Sell(lot_size,_Symbol,Bid,Bid+pip_loss*_Point,Bid-pip_profit2*_Point,NULL);
+               trade.Sell(lot_size,_Symbol,Bid,Bid+pip_loss*_Point,Bid-pip_profit3*_Point,NULL);
                trade_taken=true;
                in_progress=true;
               }
@@ -297,16 +302,25 @@ void OnTick()
      }
 
 // Activate the Trailing Stop Function
-   if(get_profit>0 && get_profit<=35)
+   if(!firstStop_moved)
      {
-      expert.SellTrailingStop(trailing_stop1);
-      expert.BuyTrailingStop(trailing_stop1);
+      if(get_profit>pip_profit1 && get_profit<=pip_profit1+50)
+        {
+         expert.SellTrailingStop(trailing_stop1);
+         expert.BuyTrailingStop(trailing_stop1);
+         firstStop_moved = true;
+        }
      }
 
-   if(get_profit>35 && get_profit<=70)
+   if(!secondStop_moved)
      {
-      expert.SellTrailingStop(trailing_stop2);
-      expert.BuyTrailingStop(trailing_stop2);
+      if(get_profit>pip_profit2 && get_profit<=pip_profit2+50)
+        {
+         expert.SellTrailingStop(trailing_stop2);
+         expert.BuyTrailingStop(trailing_stop2);
+         secondStop_moved = true;
+        }
      }
+
   }// END OF THE ON-TICK MAIN FUNCTION
 //+------------------------------------------------------------------+
