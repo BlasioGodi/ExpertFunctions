@@ -82,6 +82,8 @@ bool conditions_met = false;
 bool value_returned = false;
 bool trade_taken = false;
 bool in_progress=false;
+bool firstStop_moved = false;
+bool secondStop_moved = false;
 double get_profit=0;
 
 MqlDateTime previousDateTime;  // Global variable to store the previous date and time
@@ -136,6 +138,8 @@ void OnTick()
       trade_taken = false;
       conditions_met = false;
       value_returned = false;
+      firstStop_moved = false;
+      secondStop_moved = false;
       get_profit = 0;
      }
 
@@ -231,16 +235,25 @@ void OnTick()
            }
         }
      }
-   if(get_profit>0 && get_profit<=35)
+// Activate the Trailing Stop Function
+   if(!firstStop_moved)
      {
-      expert.SellTrailingStop(trailing_stop1);
-      expert.BuyTrailingStop(trailing_stop1);
+      if(get_profit>pip_profit1 && get_profit<=pip_profit1+50)
+        {
+         expert.SellTrailingStop(trailing_stop1);
+         expert.BuyTrailingStop(trailing_stop1);
+         firstStop_moved = true;
+        }
      }
 
-   if(get_profit>35 && get_profit<=70)
+   if(!secondStop_moved)
      {
-      expert.SellTrailingStop(trailing_stop2);
-      expert.BuyTrailingStop(trailing_stop2);
+      if(get_profit>pip_profit2 && get_profit<=pip_profit2+50)
+        {
+         expert.SellTrailingStop(trailing_stop2);
+         expert.BuyTrailingStop(trailing_stop2);
+         secondStop_moved = true;
+        }
      }
   }
 //+------------------------------------------------------------------+
