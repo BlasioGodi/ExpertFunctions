@@ -19,21 +19,26 @@ ExpertFunctions expert;
 
 // Currency Pairs
 enum ENUM_FX_PAIRS
-  {
-   EURUSD,
-   GBPUSD,
+  { 
    AUDUSD,
-   NZDUSD,
-   USDJPY,
-   USDCHF,
-   USDCAD,
-   XAUUSD,
-   GBPJPY,
-   GBPCAD,
+   AUDJPY,
+   AUDCAD,
+   EURUSD,
    EURAUD,
    EURCAD,
    EURJPY,
-   EURGBP
+   EURGBP,
+   GBPJPY,
+   GBPCAD,
+   GBPAUD,  
+   GBPUSD, 
+   NZDUSD,
+   NZDCAD,
+   NZDJPY,
+   USDJPY,
+   USDCHF,
+   USDCAD,
+   XAUUSD,  
   };
 
 //User input variables

@@ -1297,10 +1297,10 @@ int ExpertFunctions::ExpertZone(vector &Level,vector<double> &PointChange, int &
            {
             if(Pips<=1)
               {
-               Alert("Price is between: "+DoubleToString(UpperZone,2)+" and "+DoubleToString(LowerZone,2));
+               Alert(_Symbol+": Price is between "+DoubleToString(UpperZone,4)+" and "+DoubleToString(LowerZone,4));
 
                // Push notification to Expert Advisor
-               SendNotification("Price is between: "+DoubleToString(UpperZone,2)+" and "+DoubleToString(LowerZone,2));
+               SendNotification(_Symbol+": Price is between "+DoubleToString(UpperZone,4)+" and "+DoubleToString(LowerZone,4));
 
                //Insert the link to the external desktop API here
 
@@ -1319,10 +1319,10 @@ int ExpertFunctions::ExpertZone(vector &Level,vector<double> &PointChange, int &
            {
             if(Pips<=1)
               {
-               Alert("Price is between: "+DoubleToString(UpperZone,2)+" and "+DoubleToString(LowerZone,2));
+               Alert(_Symbol+": Price is between "+DoubleToString(UpperZone,4)+" and "+DoubleToString(LowerZone,4));
 
                // Push notification to Expert Advisor
-               SendNotification("Price is between: "+DoubleToString(UpperZone,2)+" and "+DoubleToString(LowerZone,2));
+               SendNotification(_Symbol+": Price is between "+DoubleToString(UpperZone,4)+" and "+DoubleToString(LowerZone,4));
 
                //Insert the link to the external desktop API here
 
