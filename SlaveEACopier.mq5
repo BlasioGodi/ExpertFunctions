@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                              TradeCopierTest.mq5 |
+//|                                                SlaveEACopier.mq5 |
 //|                                  Copyright 2023, Godfrey Muhinda |
 //|                                               https://xauman.com |
 //+------------------------------------------------------------------+
@@ -7,8 +7,11 @@
 #property link      "https://xauman.com"
 #property version   "1.00"
 
-input string                  mySpreadSheet        = "MasterEASignal.csv";      // File name
-datetime CurrentTime = 0;
+input string                  mySpreadSheet        = "SlaveEASignal1.csv";      // File name
+int numValues = 0;
+string line = "";
+string values[];
+string tradeType = "";
 
 //+------------------------------------------------------------------+
 //|Initialisation function                                           |
@@ -32,35 +35,38 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTimer()
   {
-  
-  //Delete Previous file and reset last error
-   FileDelete(mySpreadSheet);
    ResetLastError();
-   
-   CurrentTime = TimeLocal();
-   string localTime = TimeToString(CurrentTime);
-   
 
-// Check if the file exists
-   if(!FileIsExist(mySpreadSheet))
+   int fileHandle = FileOpen(mySpreadSheet, FILE_CSV|FILE_READ, ','); // Replace ';' with your CSV separator if different
+
+   if(fileHandle == INVALID_HANDLE)
      {
-      // If the file doesn't exist, create it
-      int fileHandle = FileOpen(mySpreadSheet,FILE_READ|FILE_WRITE|FILE_CSV|FILE_ANSI);
-      if(fileHandle != INVALID_HANDLE)
+      Print("Failed to open file: ", mySpreadSheet);
+      return;
+     }
+
+   while(!FileIsEnding(fileHandle))
+     {
+      line = FileReadString(fileHandle);
+
+      if(StringLen(line) > 0)
         {
-         // Write the header row (optional)
-         FileWrite(fileHandle, "TradeType,","OrderID,","Time:,",localTime);
-         FileFlush(fileHandle);
-         FileClose(fileHandle);
-         Comment("Executed as planned");
-        }
-      else
-        {
-         Print("Failed to create the CSV file");
-         Comment("Dint execute as planned");
-         return;
+         numValues = StringSplit(line, ',', values); // Replace ';' with your CSV separator
+
+         if(numValues >= 4)  // Assuming 3 columns in the CSV (adjust this as needed)
+           {
+            tradeType = values[0];
+           }
+         else
+           {
+            Print("Invalid data format in line: ", line);
+           }
         }
      }
+     
+     Comment("Values: ",tradeType);
+
+   FileClose(fileHandle);
   }
 
 //+------------------------------------------------------------------+
